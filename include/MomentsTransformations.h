@@ -19,7 +19,7 @@ namespace SampleMoments {
   /// Each element contains a vector of blocks, each block is a vector of indices
   /// See https://en.wikipedia.org/wiki/Partition_of_a_set
   /// \param n  The dimension of the set
-  std::vector<std::vector<std::vector<int>>> PartitionsOfSet(int n) {
+  static std::vector<std::vector<std::vector<int>>> PartitionsOfSet(int n) {
     if (n == 1)
       return {{{0}}};
 
@@ -53,7 +53,7 @@ namespace SampleMoments {
   ///                           Each key-value pair correspond to a single term.
   ///                           The key corresponds to a vector of (central) moments. Each element of this vector is a vector of the moments' indices.
   ///                           The value is a numeral factor in front of each term. 
-  std::map<std::vector<std::vector<int>>, int64_t> JointCumulantToCentralMoments(
+  static std::map<std::vector<std::vector<int>>, int64_t> JointCumulantToCentralMoments(
           const std::vector<int> &indices,
           int dimensions = -1,
           bool ordinary_moments = false
@@ -107,7 +107,7 @@ namespace SampleMoments {
 
   /// Express an arbitrary joint cumulant in terms of the joint moments
   /// Calls JointCumulantToCentralMoments()
-  std::map<std::vector<std::vector<int>>, int64_t> JointCumulantToMoments(
+  static std::map<std::vector<std::vector<int>>, int64_t> JointCumulantToMoments(
           const std::vector<int> &indices,
           int dimensions = -1
   ) {
