@@ -284,7 +284,7 @@ namespace SampleMoments {
     }
 
     /// Returns the error estimate for the ratio of joint central moments \mu_i1,j1 / \mu_i2,j2
-    double GetJointCentralMomentError(int i1, int j1, int i2, int j2) {
+    double GetJointCentralMomentRatioError(int i1, int j1, int i2, int j2) {
       double c1 = GetJointCentralMoment(i1, j1);
       double c2 = GetJointCentralMoment(i2, j2);
       double c1Dev = GetJointCentralMomentsSampleCovariance(i1, j1, i1, j1);
@@ -294,9 +294,9 @@ namespace SampleMoments {
       return std::abs(c1 / c2) * std::sqrt(c1Dev / c1 / c1 + c2Dev / c2 / c2 - 2. * c1c2cov / c1 / c2);
     }
 
-    double GetJointCentralMomentError(const std::pair<int,int> &index1, const std::pair<int,int> &index2)
+    double GetJointCentralMomentRatioError(const std::pair<int,int> &index1, const std::pair<int,int> &index2)
     {
-      return GetJointCentralMomentError(index1.first, index1.second, index2.first, index2.second);
+      return GetJointCentralMomentRatioError(index1.first, index1.second, index2.first, index2.second);
     }
 
     /// Returns the joint cumulant \kappa_i,j
