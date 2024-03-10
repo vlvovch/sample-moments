@@ -192,7 +192,7 @@ namespace SampleMoments {
 
     /// Returns the ratio of joint moments <N1^i1 N2^j1> / <N1^i2 N2^j2>
     double GetJointMomentRatio(int i1, int j1, int i2, int j2) {
-      return GetJointCentralMoment(i1, j1) / GetJointCentralMoment(i2, j2);
+      return GetJointMoment(i1, j1) / GetJointMoment(i2, j2);
     }
 
     double GetJointMomentRatio(const std::pair<int,int> &index1, const std::pair<int,int> &index2)
