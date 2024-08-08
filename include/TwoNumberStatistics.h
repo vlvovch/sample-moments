@@ -561,13 +561,8 @@ namespace SampleMoments {
 
     /// Set the moments externally
     void SetMomentSumsExternally(const std::vector<std::vector<double>> &momentSums, int64_t nobservations) {
-      Reset(momentSums.size() + 1);
-      m_MomentSums[0][0] = static_cast<double>(nobservations);
-      for(int i = 0; i < momentSums.size(); ++i) {
-        for(int j = 0; j < momentSums[i].size(); ++j) {
-          m_MomentSums[i + 1] = momentSums[i];
-        }
-      }
+      Reset(momentSums.size() - 1);
+      m_MomentSums = momentSums;
       m_NumberOfObservations = nobservations;
       m_MomentsComputed = false;
     }
