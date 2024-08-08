@@ -58,7 +58,7 @@ namespace SampleMoments {
           int dimensions = -1,
           bool ordinary_moments = false
   ) {
-    assert(indices.size() > 1);
+    assert(indices.size() > 0);
 
     if (dimensions == -1) {
       for (int ind : indices) {
@@ -112,6 +112,43 @@ namespace SampleMoments {
           int dimensions = -1
   ) {
     return JointCumulantToCentralMoments(indices, dimensions, true);
+  }
+
+  /// Express an arbitrary factorial cumulant C~n in terms of ordinary cumulants \\kappa_k.
+  /// Uses the combinartorial version of the Faa di Bruno's formula https://en.wikipedia.org/wiki/Fa%C3%A0_di_Bruno%27s_formula
+  /// \param n            Order of the factorial cumulant
+  /// \return                   Returns the factorial cumulants as linear combination of ordinary cumulants.
+  ///                           The return value is a map..
+  ///                           Each key-value pair correspond to a single term.
+  ///                           The key corresponds to the ordinary cumualant order.
+  ///                           The value is a numeral factor in front of each term.
+  static std::map<int,int64_t> FactorialCumulantsToOrdinaryCumulants(
+          int n
+  ) {
+
+
+    // Use the multivariate version of the Faa di Bruno's formula https://en.wikipedia.org/wiki/Fa%C3%A0_di_Bruno%27s_formula
+    auto ret = std::map<int, int64_t>();
+
+    std::vector<int64_t> factorials(n, 1);
+    for (int k = 1; k < n; ++k)
+      factorials[k] = k * factorials[k - 1];
+
+    auto partitions_FdB = PartitionsOfSet(n);
+    for (const auto &partition : partitions_FdB) {
+      int num_blocks = partition.size();
+      int64_t multiplier = 1;
+
+      std::vector<std::vector<int>> mults;
+      for (const auto &block : partition) {
+        if (block.size()%2 == 0)
+          multiplier *= -1;
+        multiplier *= factorials[block.size() - 1];
+      }
+      ret[num_blocks] += multiplier;
+    }
+
+    return ret;
   }
 
 } // namespace SampleMoments

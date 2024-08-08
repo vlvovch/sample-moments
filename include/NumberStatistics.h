@@ -172,7 +172,6 @@ namespace SampleMoments {
       return m_Moments[r];
     }
 
-
     /// Returns the sample covariance cov(<N^r>,<N^q>)
     /// In accordance with M. Kendall and A. Stuart, ``The advanced theory of statistics''
     double GetMomentsSampleCovariance(int r, int q) {
@@ -248,40 +247,215 @@ namespace SampleMoments {
     }
 
     /// Returns the r-th order cumulant \kappa_r
-    double GetCumulant(int r) {
-      return CalculateCumulantFromMoments(r);
+    double GetCumulant(int r, bool use_central_moments = true) {
+      return CalculateCumulantFromMoments(r, use_central_moments);
     }
 
     /// Returns the error estimate for the r-th order cumulant \kappa_r
-    double GetCumulantError(int r) {
-      return CalculateCumulantErrorFromMoments(r);
+    double GetCumulantError(int r, bool use_central_moments = true) {
+      return std::sqrt(GetCumulantsCovariance(r, r, use_central_moments));
+      //return CalculateCumulantErrorFromMoments(r, use_central_moments);
+    }
+
+    /// Returns the covariance between the two cumulants cov(\kappa_r, \kappa_q)
+    double GetCumulantsCovariance(int r, int q, bool use_central_moments = true) {
+      if (r == 1 && q == 1)
+        return GetMomentsSampleCovariance(1, 1);
+
+      // In case one of the cumulants is first-order one
+      bool flMean = false;
+      if (use_central_moments) {
+        if (r == 1 || q == 1)
+          flMean = true;
+        if (r == 1)
+          std::swap(r, q);
+      }
+
+      double ret = 0.;
+
+      auto cumulant_vs_centralmoments1 = JointCumulantToCentralMoments(std::vector<int>(r, 0), 1, !use_central_moments);
+      auto cumulant_vs_centralmoments2 = JointCumulantToCentralMoments(std::vector<int>(q, 0), 1, !use_central_moments);
+
+      for (const auto &term1 : cumulant_vs_centralmoments1) {
+        double tmp1 = static_cast<double>(term1.second);
+        for (const auto &multiplier1 : term1.first) {
+          tmp1 *= CalculateMoment(multiplier1[0], use_central_moments);
+        }
+
+        for (const auto &multiplier1 : term1.first) {
+          double d1 = tmp1 / CalculateMoment(multiplier1[0], use_central_moments);
+
+          if (!flMean) {
+            for (const auto &term2: cumulant_vs_centralmoments2) {
+              double tmp2 = static_cast<double>(term2.second);
+              for (const auto &multiplier2: term2.first) {
+                tmp2 *= CalculateMoment(multiplier2[0], use_central_moments);
+              }
+
+              for (const auto &multiplier2: term2.first) {
+                double d2 = tmp2 / CalculateMoment(multiplier2[0], use_central_moments);
+
+                ret += d1 * d2 *
+                       CalculateMomentsSampleCovariance(multiplier1[0], multiplier2[0], use_central_moments);
+              }
+            }
+          } else {
+            double d2 = 1.0;
+            int rr = multiplier1[0];
+            // Covariance of rr-th central moment and first moment (the mean)
+            double c1c2cov = (m_CentralMoments[rr + 1] - rr * m_CentralMoments[2] * m_CentralMoments[rr - 1]) / m_nE;
+            ret += d1 * d2 * c1c2cov;
+          }
+
+        }
+      }
+
+      return ret;
     }
 
     /// Returns the cumulant ratio \kappa_r / \kappa_q
-    double GetCumulantRatio(int r, int q) { return GetCumulant(r) / GetCumulant(q); }
+    double GetCumulantRatio(int r, int q, bool use_central_moments = true) {
+      return GetCumulant(r, use_central_moments) / GetCumulant(q, use_central_moments);
+    }
 
     /// Returns the error estimate for the cumulant ratio \kappa_r / \kappa_q
-    double GetCumulantRatioError(int r, int q) { return CalculateCumulantRatioErrorFromMoments(r, q); }
+    /// Obsolete.
+//    double GetCumulantRatioError(int r, int q, bool use_central_moments = true) {
+//      return CalculateCumulantRatioErrorFromMoments(r, q, use_central_moments);
+//    }
 
+    /// Returns the error estimate for the cumulant ratio \kappa_r / \kappa_q
+    double GetCumulantRatioError(int r, int q, bool use_central_moments = true) {
+      double kappar = GetCumulant(r);
+      double kappaq = GetCumulant(q);
+      double c1 = GetCumulantsCovariance(r,r,use_central_moments);
+      double c2 = GetCumulantsCovariance(q,q,use_central_moments);
+      double c1c2cov = GetCumulantsCovariance(r,q,use_central_moments);
+      return std::abs(kappar/kappaq) * std::sqrt(c1/kappar/kappar + c2/kappaq/kappaq - 2. * c1c2cov/kappar/kappaq);
+    }
 
     /// Returns the r-th cumulant scaled by the mean \kappa_r / <N>
-    double GetScaledCumulant(int r) { return GetCumulant(r) / GetMean(); }
+    double GetScaledCumulant(int r, bool use_central_moments = true) {
+      return GetCumulant(r, use_central_moments) / GetMean();
+    }
 
     /// Returns the error estimate for r-th cumulant scaled by the mean \kappa_r / <N>
-    double GetScaledCumulantError(int r) {
+    double GetScaledCumulantError(int r, bool use_central_moments = true) {
       if (r == 1)
         return 0.0;
 
-      double c1 = GetCentralMoment(r);
-      double c2 = GetMean();
-      double c1Dev = GetCentralMomentsSampleCovariance(r, r);
-      double c2Dev = GetMeanError() * GetMeanError();
+      return GetCumulantRatioError(r, 1, use_central_moments);
+    }
 
-      CalculateMoments();
+    /// Returns the error estimate for r-th cumulant scaled by the mean \kappa_r / <N>
+    /// Obsolete.
+//    double GetScaledCumulantError2(int r, bool use_central_moments) {
+//      if (r == 1)
+//        return 0.0;
+//
+//      return CalculateCumulantRatioErrorFromMoments(r, 1, use_central_moments);
+//    }
 
-      double c1c2cov = (m_CentralMoments[r + 1] - r * m_CentralMoments[2] * m_CentralMoments[r - 1]) / m_nE;
+    /// Returns the covariance between the two factorial cumulants cov(C~r, C~q)
+    double GetFactorialCumulantsCovariance(int r, int q, bool use_central_moments = true) {
+      double ret = 0.0;
 
-      return std::abs(c1 / c2) * std::sqrt(c1Dev / c1 / c1 + c2Dev / c2 / c2 - 2. * c1c2cov / c1 / c2);
+      auto FC_vs_C1 = FactorialCumulantsToOrdinaryCumulants(r);
+      auto FC_vs_C2 = FactorialCumulantsToOrdinaryCumulants(q);
+
+      for(auto el1 : FC_vs_C1) {
+        for(auto el2 : FC_vs_C2) {
+          ret += el1.second * el2.second * GetCumulantsCovariance(el1.first, el2.first, use_central_moments);
+        }
+      }
+
+      return ret;
+    }
+
+    /// Returns the factorial cumulant C~r
+    double GetFactorialCumulant(int r, bool use_central_moments = true) {
+      double ret = 0.0;
+
+      auto FC_vs_C1 = FactorialCumulantsToOrdinaryCumulants(r);
+
+      for(auto el1 : FC_vs_C1) {
+        ret += el1.second * GetCumulant(el1.first, use_central_moments);
+      }
+
+      return ret;
+    }
+
+    /// Returns the error estimate for factorial cumulant C~r
+    double GetFactorialCumulantError(int r, bool use_central_moments = true) {
+      return std::sqrt(GetFactorialCumulantsCovariance(r, r, use_central_moments));
+    }
+
+    /// Returns the faactorial cumulant ratio C~r / C~q
+    double GetFactorialCumulantRatio(int r, int q, bool use_central_moments = true) {
+      return GetFactorialCumulant(r, use_central_moments) / GetFactorialCumulant(q, use_central_moments);
+    }
+
+    /// Returns the error estimate for the factorial cumulant ratio C~r / C~q
+    double GetFactorialCumulantRatioError(int r, int q, bool use_central_moments = true) {
+      double Cr = GetFactorialCumulant(r);
+      double Cq = GetFactorialCumulant(q);
+      double c1 = GetFactorialCumulantsCovariance(r,r,use_central_moments);
+      double c2 = GetFactorialCumulantsCovariance(q,q,use_central_moments);
+      double c1c2cov = GetFactorialCumulantsCovariance(r,q,use_central_moments);
+      return std::abs(Cr/Cq) * std::sqrt(c1/Cr/Cr + c2/Cq/Cq - 2. * c1c2cov/Cr/Cq);
+    }
+
+    /// Returns the covariance between the two factorial moments cov(Fr, Fq)
+    double GetFactorialMomentsCovariance(int r, int q) {
+      double ret = 0.0;
+
+      // The relation between factorial moments and ordinary moments
+      // is the same as between factorial cumulants and ordinary cumulants
+      auto FC_vs_C1 = FactorialCumulantsToOrdinaryCumulants(r);
+      auto FC_vs_C2 = FactorialCumulantsToOrdinaryCumulants(q);
+
+      for(auto el1 : FC_vs_C1) {
+        for(auto el2 : FC_vs_C2) {
+          ret += el1.second * el2.second * GetMomentsSampleCovariance(el1.first, el2.first);
+        }
+      }
+
+      return ret;
+    }
+
+    /// Returns the factorial moment Fr
+    double GetFactorialMoment(int r, bool use_central_moments = true) {
+      double ret = 0.0;
+
+      // The relation between factorial moments and ordinary moments
+      // is the same as between factorial cumulants and ordinary cumulants
+      auto FC_vs_C1 = FactorialCumulantsToOrdinaryCumulants(r);
+
+      for(auto el1 : FC_vs_C1) {
+        ret += el1.second * GetMoment(el1.first);
+      }
+
+      return ret;
+    }
+
+    /// Returns the error estimate for factorial moment Fr
+    double GetFactorialMomentError(int r) {
+      return std::sqrt(GetFactorialMomentsCovariance(r, r));
+    }
+
+    /// Returns the factorial moment ratio Fr / Fq
+    double GetFactorialMomentRatio(int r, int q, bool use_central_moments = true) {
+      return GetFactorialMoment(r, use_central_moments) / GetFactorialMoment(q, use_central_moments);
+    }
+
+    /// Returns the error estimate for the factorial moment ratio Fr / Fq
+    double GetFactorialMomentRatioError(int r, int q, bool use_central_moments = true) {
+      double Cr = GetFactorialMoment(r);
+      double Cq = GetFactorialMoment(q);
+      double c1 = GetFactorialMomentsCovariance(r,r);
+      double c2 = GetFactorialMomentsCovariance(q,q);
+      double c1c2cov = GetFactorialMomentsCovariance(r,q);
+      return std::abs(Cr/Cq) * std::sqrt(c1/Cr/Cr + c2/Cq/Cq - 2. * c1c2cov/Cr/Cq);
     }
 
     /// Returns the sample mean
@@ -300,7 +474,6 @@ namespace SampleMoments {
 
     double GetScaledVarianceError() { return GetScaledCumulantError(2); }
 
-
     double GetSkewness() { return GetCumulantRatio(3, 2); }
 
     double GetSkewnessError() { return GetCumulantRatioError(3, 2); }
@@ -316,6 +489,23 @@ namespace SampleMoments {
     double GetC6C2() { return GetCumulantRatio(6, 2); }
 
     double GetC6C2Error() { return GetCumulantRatioError(6, 2); }
+
+    /// Returns the reduced factorial cumulant fc(n) = FC(n) / [FC(1)]^n
+    double GetReducedFactorialCumulant(int n) {
+      return GetFactorialCumulant(n) / std::pow(GetFactorialCumulant(1), n);
+    }
+
+    /// Returns the error estimate for the reduced factorial cumulant fc(n) = FC(n) / [FC(1)]^n
+    double GetReducedFactorialCumulantError(int n) {
+      double fcn = GetFactorialCumulant(n);
+      double fc1 = GetFactorialCumulant(1);
+      double c1 = GetFactorialCumulantsCovariance(n,n);
+      double c2 = GetFactorialCumulantsCovariance(1,1);
+      double c1c2cov = GetFactorialCumulantsCovariance(n,1);
+      double d1 = 1.0 / std::pow(fc1, n);
+      double d2 = -1. * n * fcn / std::pow(fc1, n + 1);
+      return std::sqrt( d1 * d1 * c1 + d2 * d2 * c2 + 2. * d1 * d2 * c1c2cov );
+    }
 
     /// Set the shift of means to use when accumulating statistics
     /// Can be useful to avoid round-off error when dealing with higher-order central moments and cumulants

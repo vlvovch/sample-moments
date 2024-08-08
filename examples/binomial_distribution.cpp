@@ -21,19 +21,19 @@ double binomial_cumulant(int k, int n, double p)
   if (k == 4)
     return n * (1 - p)*p*((1 - 2*p)*(1 - p) - (1 - 2*p)*p - 2*(1 - p)*p);
   if (k == 5)
-    return n * (1 - p)*p*((1 - p)*p*(-2 - 4*(1 - p) + 8*p) 
-    + (1 - p)*((1 - 2*p)*(1 - p) - (1 - 2*p)*p - 2*(1 - p)*p) 
+    return n * (1 - p)*p*((1 - p)*p*(-2 - 4*(1 - p) + 8*p)
+    + (1 - p)*((1 - 2*p)*(1 - p) - (1 - 2*p)*p - 2*(1 - p)*p)
     - p*((1 - 2*p)*(1 - p) - (1 - 2*p)*p - 2*(1 - p)*p));
   if (k == 6)
-    return n * (1 - p)*p*((1 - p)*p*(-2*(1 - 2*p)*(1 - p) 
-    + 2*(1 - 2*p)*p + 16*(1 - p)*p 
-    + 2*(1 - p)*(-2 - 4*(1 - p) + 8*p) 
-    - 2*p*(-2 - 4*(1 - p) + 8*p)) 
-    + (1 - p)*((1 - p)*p*(-2 - 4*(1 - p) + 8*p) 
-    + (1 - p)*((1 - 2*p)*(1 - p) - (1 - 2*p)*p - 2*(1 - p)*p) 
-    - p*((1 - 2*p)*(1 - p) - (1 - 2*p)*p - 2*(1 - p)*p)) 
-    - p*((1 - p)*p*(-2 - 4*(1 - p) + 8*p) + (1 - p)*((1 - 2*p)*(1 - p) 
-    - (1 - 2*p)*p - 2*(1 - p)*p) - p*((1 - 2*p)*(1 - p) - (1 - 2*p)*p 
+    return n * (1 - p)*p*((1 - p)*p*(-2*(1 - 2*p)*(1 - p)
+    + 2*(1 - 2*p)*p + 16*(1 - p)*p
+    + 2*(1 - p)*(-2 - 4*(1 - p) + 8*p)
+    - 2*p*(-2 - 4*(1 - p) + 8*p))
+    + (1 - p)*((1 - p)*p*(-2 - 4*(1 - p) + 8*p)
+    + (1 - p)*((1 - 2*p)*(1 - p) - (1 - 2*p)*p - 2*(1 - p)*p)
+    - p*((1 - 2*p)*(1 - p) - (1 - 2*p)*p - 2*(1 - p)*p))
+    - p*((1 - p)*p*(-2 - 4*(1 - p) + 8*p) + (1 - p)*((1 - 2*p)*(1 - p)
+    - (1 - 2*p)*p - 2*(1 - p)*p) - p*((1 - 2*p)*(1 - p) - (1 - 2*p)*p
     - 2*(1 - p)*p)));
   return 0.;
 }
@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
   if (argc > 1)
     sample_size = atoi(argv[1]);
 
-    
+
   // Parameters of the binomial distribution
   int n = 10;
   double p = 0.7;
@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
 
   std::cout << "Generating " << sample_size << " numbers from the binomial distribution with "
     << "n = " << n << " and " << "p = " << p << std::endl;
-  
+
 
   // Random number generator
   std::mt19937 rng;
@@ -81,8 +81,8 @@ int main(int argc, char* argv[]) {
   }
 
   for(auto el : hist) {
-    std::cout << el.first << " " << el.second / static_cast<double>(sample_size) 
-    << " +- " << sqrt(el.second) / static_cast<double>(sample_size) 
+    std::cout << el.first << " " << el.second / static_cast<double>(sample_size)
+    << " +- " << sqrt(el.second) / static_cast<double>(sample_size)
     << std::endl;
   }
 
