@@ -397,8 +397,8 @@ namespace SampleMoments {
 
     /// Returns the error estimate for the factorial cumulant ratio C~r / C~q
     double GetFactorialCumulantRatioError(int r, int q, bool use_central_moments = true) {
-      double Cr = GetFactorialCumulant(r);
-      double Cq = GetFactorialCumulant(q);
+      double Cr = GetFactorialCumulant(r,use_central_moments);
+      double Cq = GetFactorialCumulant(q,use_central_moments);
       double c1 = GetFactorialCumulantsCovariance(r,r,use_central_moments);
       double c2 = GetFactorialCumulantsCovariance(q,q,use_central_moments);
       double c1c2cov = GetFactorialCumulantsCovariance(r,q,use_central_moments);
@@ -424,7 +424,7 @@ namespace SampleMoments {
     }
 
     /// Returns the factorial moment Fr
-    double GetFactorialMoment(int r, bool use_central_moments = true) {
+    double GetFactorialMoment(int r) {
       double ret = 0.0;
 
       // The relation between factorial moments and ordinary moments
@@ -444,8 +444,8 @@ namespace SampleMoments {
     }
 
     /// Returns the factorial moment ratio Fr / Fq
-    double GetFactorialMomentRatio(int r, int q, bool use_central_moments = true) {
-      return GetFactorialMoment(r, use_central_moments) / GetFactorialMoment(q, use_central_moments);
+    double GetFactorialMomentRatio(int r, int q) {
+      return GetFactorialMoment(r) / GetFactorialMoment(q);
     }
 
     /// Returns the error estimate for the factorial moment ratio Fr / Fq
@@ -496,12 +496,29 @@ namespace SampleMoments {
     }
 
     /// Returns the error estimate for the reduced factorial cumulant fc(n) = FC(n) / [FC(1)]^n
-    double GetReducedFactorialCumulantError(int n) {
-      double fcn = GetFactorialCumulant(n);
-      double fc1 = GetFactorialCumulant(1);
-      double c1 = GetFactorialCumulantsCovariance(n,n);
-      double c2 = GetFactorialCumulantsCovariance(1,1);
-      double c1c2cov = GetFactorialCumulantsCovariance(n,1);
+    double GetReducedFactorialCumulantError(int n, bool use_central_moments = true) {
+      double fcn = GetFactorialCumulant(n, use_central_moments);
+      double fc1 = GetFactorialCumulant(1, use_central_moments);
+      double c1 = GetFactorialCumulantsCovariance(n,n, use_central_moments);
+      double c2 = GetFactorialCumulantsCovariance(1,1, use_central_moments);
+      double c1c2cov = GetFactorialCumulantsCovariance(n,1, use_central_moments);
+      double d1 = 1.0 / std::pow(fc1, n);
+      double d2 = -1. * n * fcn / std::pow(fc1, n + 1);
+      return std::sqrt( d1 * d1 * c1 + d2 * d2 * c2 + 2. * d1 * d2 * c1c2cov );
+    }
+
+    /// Returns the reduced factorial moment f(n) = F(n) / [F(1)]^n
+    double GetReducedFactorialMoment(int n) {
+      return GetFactorialMoment(n) / std::pow(GetFactorialCumulant(1), n);
+    }
+
+    /// Returns the error estimate for the reduced factorial moment f(n) = F(n) / [F(1)]^n
+    double GetReducedFactorialMomentError(int n) {
+      double fcn = GetFactorialMoment(n);
+      double fc1 = GetFactorialMoment(1);
+      double c1 = GetFactorialMomentsCovariance(n,n);
+      double c2 = GetFactorialMomentsCovariance(1,1);
+      double c1c2cov = GetFactorialMomentsCovariance(n,1);
       double d1 = 1.0 / std::pow(fc1, n);
       double d2 = -1. * n * fcn / std::pow(fc1, n + 1);
       return std::sqrt( d1 * d1 * c1 + d2 * d2 * c2 + 2. * d1 * d2 * c1c2cov );
@@ -543,11 +560,8 @@ namespace SampleMoments {
 
   /// Set the moments externally
   void SetMomentSumsExternally(const std::vector<double> &momentSums, int64_t nobservations) {
-    Reset(momentSums.size() + 1);
-    m_MomentSums[0] = static_cast<double>(nobservations);
-    for(int i = 0; i < momentSums.size(); ++i) {
-      m_MomentSums[i + 1] = momentSums[i];
-    }
+    Reset(momentSums.size() - 1);
+    m_MomentSums = momentSums;
     m_NumberOfObservations = nobservations;
     m_MomentsComputed = false;
   }

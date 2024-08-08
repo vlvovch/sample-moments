@@ -300,38 +300,192 @@ namespace SampleMoments {
     }
 
     /// Returns the joint cumulant \kappa_i,j
-    double GetJointCumulant(int i, int j) {
-      return CalculateJointCumulantFromMoments(i, j);
+    double GetJointCumulant(int i, int j, bool use_central_moments = true) {
+      return CalculateJointCumulantFromMoments(i, j, use_central_moments);
     }
 
-    double GetJointCumulant(const std::pair<int,int> &index) { return GetJointCumulant(index.first, index.second); }
+    double GetJointCumulant(const std::pair<int,int> &index, bool use_central_moments = true) {
+      return GetJointCumulant(index.first, index.second, use_central_moments);
+    }
 
     /// Returns the error estimate for the joint cumulant \kappa_i,j
-    double GetJointCumulantError(int i, int j) {
-      return CalculateJointCumulantErrorFromMoments(i, j);
+    double GetJointCumulantError(int i, int j, bool use_central_moments = true) {
+      return std::sqrt(GetJointCumulantsCovariance(i, j, i, j, use_central_moments));
     }
 
-    double GetJointCumulantError(const std::pair<int,int> &index) { return GetJointCumulantError(index.first, index.second); }
+    double GetJointCumulantError(const std::pair<int,int> &index, bool use_central_moments = true) {
+      return GetJointCumulantError(index.first, index.second, use_central_moments);
+    }
 
 
     /// Returns the joint cumulant ratio \kappa_i1,j2 / \kappa_i2,j2
-    double GetJointCumulantRatio(int i1, int j1, int i2, int j2) {
-      return GetJointCumulant(i1, j1) / GetJointCumulant(i2, j2);
+    double GetJointCumulantRatio(int i1, int j1, int i2, int j2, bool use_central_moments = true) {
+      return GetJointCumulant(i1, j1, use_central_moments) / GetJointCumulant(i2, j2, use_central_moments);
     }
 
-    double GetJointCumulantRatio(const std::pair<int,int> &index1, const std::pair<int,int> &index2)
+    double GetJointCumulantRatio(const std::pair<int,int> &index1, const std::pair<int,int> &index2, bool use_central_moments = true)
     {
-      return GetJointCumulantRatio(index1.first, index1.second, index2.first, index2.second);
+      return GetJointCumulantRatio(index1.first, index1.second, index2.first, index2.second, use_central_moments);
     }
 
     /// Returns the error estimate for the joint cumulant ratio \kappa_i1,j2 / \kappa_i2,j2
-    double GetJointCumulantRatioError(int i1, int j1, int i2, int j2) {
-      return CalculateJointCumulantRatioErrorFromMoments(i1, j1, i2, j2);
+    double GetJointCumulantRatioError(int i1, int j1, int i2, int j2, bool use_central_moments = true) {
+      double kappar = GetJointCumulant(i1, j1);
+      double kappaq = GetJointCumulant(i2, j2);
+      double c1 = GetJointCumulantsCovariance(i1, j1, i1, j1, use_central_moments);
+      double c2 = GetJointCumulantsCovariance(i2, j2, i2, j2, use_central_moments);
+      double c1c2cov = GetJointCumulantsCovariance(i1, j1, i2, j2, use_central_moments);
+      return std::abs(kappar/kappaq) * std::sqrt(c1/kappar/kappar + c2/kappaq/kappaq - 2. * c1c2cov/kappar/kappaq);
     }
 
-    double GetJointCumulantRatioError(const std::pair<int,int> &index1, const std::pair<int,int> &index2)
+    double GetJointCumulantRatioError(const std::pair<int,int> &index1, const std::pair<int,int> &index2, bool use_central_moments = true)
     {
-      return GetJointCumulantRatioError(index1.first, index1.second, index2.first, index2.second);
+      return GetJointCumulantRatioError(index1.first, index1.second, index2.first, index2.second, use_central_moments);
+    }
+
+
+    /// Calculates the joint factorial cumulant
+    double GetJointFactorialCumulant(int i, int j, bool use_central_moments = true) {
+      double ret = 0.0;
+
+      std::vector<int> indices;
+      for (int ii = 0; ii < i; ++ii)
+        indices.push_back(0);
+      for (int ii = 0; ii < j; ++ii)
+        indices.push_back(1);
+      auto FC_vs_Cs = JointFactorialCumulantsToOrdinaryCumulants(indices, 2);
+
+      for(auto el1 : FC_vs_Cs) {
+        ret += el1.second * GetJointCumulant(el1.first[0], el1.first[1], use_central_moments);
+      }
+
+      return ret;
+    }
+
+    /// Calculates the joint factorial cumulant
+    double GetJointFactorialCumulantError(int i, int j, bool use_central_moments = true) {
+      return std::sqrt(GetJointFactorialCumulantsCovariance(i, j, i, j, use_central_moments));
+    }
+
+    /// Calculates the joint factorial cumulant ratio
+    double GetJointFactorialCumulantRatio(int i1, int j1, int i2, int j2, bool use_central_moments = true) {
+      return GetJointFactorialCumulant(i1, j1, use_central_moments) / GetJointFactorialCumulant(i2, j2, use_central_moments);
+    }
+
+    /// Calculates the joint factorial cumulant ratio error
+    double GetJointFactorialCumulantRatioError(int i1, int j1, int i2, int j2, bool use_central_moments = true) {
+      double Cr = GetJointFactorialCumulant(i1, j1, use_central_moments);
+      double Cq = GetJointFactorialCumulant(i2,j2, use_central_moments);
+      double c1 = GetJointFactorialCumulantsCovariance(i1,j1, i1, j1, use_central_moments);
+      double c2 = GetJointFactorialCumulantsCovariance(i2,j2, i2, j2, use_central_moments);
+      double c1c2cov = GetJointFactorialCumulantsCovariance(i1,j1, i2, j2, use_central_moments);
+      return std::abs(Cr/Cq) * std::sqrt(c1/Cr/Cr + c2/Cq/Cq - 2. * c1c2cov/Cr/Cq);
+    }
+
+    /// Calculates the joint reduced factorial cumulant ratio C~i,j/[C~1,0]^i[C~0,1]^j
+    double GetJointReducedFactorialCumulant(int i, int j, bool use_central_moments = true) {
+      return GetJointFactorialCumulant(i, j, use_central_moments)
+      / std::pow(GetJointFactorialCumulant(1, 0, use_central_moments), i)
+      / std::pow(GetJointFactorialCumulant(0, 1, use_central_moments), j);
+    }
+
+    /// Calculates the joint reduced factorial cumulant ratio error
+    double GetJointReducedFactorialCumulantError(int i, int j, bool use_central_moments = true) {
+      double Cij = GetJointFactorialCumulant(i, j, use_central_moments);
+      double C1  = GetJointFactorialCumulant(1,0, use_central_moments);
+      double C2  = GetJointFactorialCumulant(0,1, use_central_moments);
+      double d1 = 1. / std::pow(C1,i) / std::pow(C2,j);
+      double d2 = -i * Cij / std::pow(C1,i+1) / std::pow(C2,j);
+      double d3 = -j * Cij / std::pow(C1,i) / std::pow(C2,j+1);
+
+      double c11 = GetJointFactorialCumulantsCovariance(i,j,i,j, use_central_moments);
+      double c12 = GetJointFactorialCumulantsCovariance(i,j,1,0, use_central_moments);
+      double c13 = GetJointFactorialCumulantsCovariance(i,j,0,1, use_central_moments);
+      double c22 = GetJointFactorialCumulantsCovariance(1,0,1,0, use_central_moments);
+      double c23 = GetJointFactorialCumulantsCovariance(1,0,0,1, use_central_moments);
+      double c33 = GetJointFactorialCumulantsCovariance(0,1,0,1, use_central_moments);
+
+      double ret = 0.;
+      ret += d1 * d1 * c11;
+      ret += d2 * d2 * c22;
+      ret += d3 * d3 * c33;
+      ret += 2 * d1 * d2 * c12;
+      ret += 2 * d1 * d3 * c13;
+      ret += 2 * d2 * d3 * c23;
+
+      return std::sqrt(ret);
+    }
+
+    /// Calculates the joint factorial moment
+    double GetJointFactorialMoment(int i, int j) {
+      double ret = 0.0;
+
+      std::vector<int> indices;
+      for (int ii = 0; ii < i; ++ii)
+        indices.push_back(0);
+      for (int ii = 0; ii < j; ++ii)
+        indices.push_back(1);
+      auto F_vs_Ms = JointFactorialCumulantsToOrdinaryCumulants(indices, 2);
+
+      for(auto el1 : F_vs_Ms) {
+        ret += el1.second * GetJointMoment(el1.first[0], el1.first[1]);
+      }
+
+      return ret;
+    }
+
+    /// Calculates the joint factorial moment
+    double GetJointFactorialMomentError(int i, int j) {
+      return std::sqrt(GetJointFactorialMomentsCovariance(i, j, i, j));
+    }
+
+    /// Calculates the joint factorial moment ratio
+    double GetJointFactorialMomentRatio(int i1, int j1, int i2, int j2) {
+      return GetJointFactorialMoment(i1, j1) / GetJointFactorialMoment(i2, j2);
+    }
+
+    /// Calculates the joint factorial moment ratio error
+    double GetJointFactorialMomentRatioError(int i1, int j1, int i2, int j2) {
+      double Cr = GetJointFactorialMoment(i1, j1);
+      double Cq = GetJointFactorialMoment(i2,j2);
+      double c1 = GetJointFactorialMomentsCovariance(i1,j1, i1, j1);
+      double c2 = GetJointFactorialMomentsCovariance(i2,j2, i2, j2);
+      double c1c2cov = GetJointFactorialMomentsCovariance(i1,j1, i2, j2);
+      return std::abs(Cr/Cq) * std::sqrt(c1/Cr/Cr + c2/Cq/Cq - 2. * c1c2cov/Cr/Cq);
+    }
+
+    /// Calculates the joint reduced factorial moment ratio Fi,j/[F1,0]^i[F0,1]^j
+    double GetJointReducedFactorialMoment(int i, int j) {
+      return GetJointFactorialMoment(i, j)
+             / std::pow(GetJointFactorialMoment(1, 0), i)
+             / std::pow(GetJointFactorialMoment(0, 1), j);
+    }
+
+    /// Calculates the joint reduced factorial moment ratio error
+    double GetJointReducedFactorialMomentError(int i, int j) {
+      double Cij = GetJointFactorialMoment(i, j);
+      double C1  = GetJointFactorialMoment(1,0);
+      double C2  = GetJointFactorialMoment(0,1);
+      double d1 = 1. / std::pow(C1,i) / std::pow(C2,j);
+      double d2 = -i * Cij / std::pow(C1,i+1) / std::pow(C2,j);
+      double d3 = -j * Cij / std::pow(C1,i) / std::pow(C2,j+1);
+
+      double c11 = GetJointFactorialMomentsCovariance(i,j,i,j);
+      double c12 = GetJointFactorialMomentsCovariance(i,j,1,0);
+      double c13 = GetJointFactorialMomentsCovariance(i,j,0,1);
+      double c22 = GetJointFactorialMomentsCovariance(1,0,1,0);
+      double c23 = GetJointFactorialMomentsCovariance(1,0,0,1);
+      double c33 = GetJointFactorialMomentsCovariance(0,1,0,1);
+
+      double ret = 0;
+      ret += d1 * d1 * c11;
+      ret += d2 * d2 * c22;
+      ret += d3 * d3 * c33;
+      ret += 2 * d1 * d2 * c12;
+      ret += 2 * d1 * d3 * c13;
+      ret += 2 * d2 * d3 * c23;
+
+      return std::sqrt(ret);
     }
 
     /// Returns the sample mean for the first variable
@@ -403,6 +557,19 @@ namespace SampleMoments {
 
       m_MomentsComputed = false;
       CalculateMoments();
+    }
+
+    /// Set the moments externally
+    void SetMomentSumsExternally(const std::vector<std::vector<double>> &momentSums, int64_t nobservations) {
+      Reset(momentSums.size() + 1);
+      m_MomentSums[0][0] = static_cast<double>(nobservations);
+      for(int i = 0; i < momentSums.size(); ++i) {
+        for(int j = 0; j < momentSums[i].size(); ++j) {
+          m_MomentSums[i + 1] = momentSums[i];
+        }
+      }
+      m_NumberOfObservations = nobservations;
+      m_MomentsComputed = false;
     }
 
   protected:
@@ -521,6 +688,128 @@ namespace SampleMoments {
         }
       }
       return std::sqrt(ret);
+    }
+
+    /// Returns the covariance cov(\kappa_i1,j1,\kappa_i2,j2) computed from (central) moments
+    /// \param  i1                    Order of the first variable of the first cumulant
+    /// \param  j1                    Order of the second variable of the first cumulant
+    /// \param  i2                    Order of the first variable of the second cumulant
+    /// \param  j2                    Order of the second variable of the second cumulant
+    /// \param  use_central_moments   Whether to use central (true) or ordinary (false) moments for the calculation
+    double GetJointCumulantsCovariance(int i1, int j1, int i2, int j2, bool use_central_moments = true) {
+      if ((i1 + j1 < 2 || i2 + j2 < 2) && use_central_moments)
+        return GetJointCumulantsCovariance(i1, j1, i2, j2, false);
+
+      std::vector<int> indices;
+      for (int ii = 0; ii < i1; ++ii)
+        indices.push_back(0);
+      for (int ii = 0; ii < j1; ++ii)
+        indices.push_back(1);
+      auto cumulant_vs_centralmoments_first = JointCumulantToCentralMoments(indices, 2, !use_central_moments);
+
+      indices.clear();
+      for (int ii = 0; ii < i2; ++ii)
+        indices.push_back(0);
+      for (int ii = 0; ii < j2; ++ii)
+        indices.push_back(1);
+      auto cumulant_vs_centralmoments_second = JointCumulantToCentralMoments(indices, 2, !use_central_moments);
+
+
+      double ret = 0.;
+      for (const auto &term1 : cumulant_vs_centralmoments_first) {
+        double tmp1 = static_cast<double>(term1.second);
+        for (const auto &multiplier1 : term1.first) {
+          tmp1 *= CalculateJointMoment(multiplier1[0], multiplier1[1], use_central_moments);
+        }
+
+        for (const auto &multiplier1 : term1.first) {
+          double d1 = tmp1 / CalculateJointMoment(multiplier1[0], multiplier1[1], use_central_moments);
+
+          for (const auto &term2 : cumulant_vs_centralmoments_second) {
+            double tmp2 = static_cast<double>(term2.second);
+            for (const auto &multiplier2 : term2.first) {
+              tmp2 *= CalculateJointMoment(multiplier2[0], multiplier2[1], use_central_moments);
+            }
+
+            for (const auto &multiplier2 : term2.first) {
+              double d2 = tmp2 / CalculateJointMoment(multiplier2[0], multiplier2[1], use_central_moments);
+
+              ret += d1 * d2 *
+                     CalculateJointMomentsSampleCovariance(multiplier1[0], multiplier1[1],
+                                                           multiplier2[0], multiplier2[1],
+                                                           use_central_moments);
+            }
+          }
+
+        }
+      }
+      return ret;
+    }
+
+    /// Returns the covariance cov(F_i1,j1,F_i2,j2) computed from moments
+    /// \param  i1                    Order of the first variable of the first factorial moment
+    /// \param  j1                    Order of the second variable of the first factorial moment
+    /// \param  i2                    Order of the first variable of the second factorial moment
+    /// \param  j2                    Order of the second variable of the second factorial moment
+    double GetJointFactorialMomentsCovariance(int i1, int j1, int i2, int j2) {
+      double ret = 0.0;
+
+      // The relation between factorial moments and ordinary moments
+      // is the same as between factorial cumulants and ordinary cumulants
+      std::vector<int> indices;
+      for (int ii = 0; ii < i1; ++ii)
+        indices.push_back(0);
+      for (int ii = 0; ii < j1; ++ii)
+        indices.push_back(1);
+      auto F_vs_M1 = JointFactorialCumulantsToOrdinaryCumulants(indices, 2);
+      indices.clear();
+      for (int ii = 0; ii < i2; ++ii)
+        indices.push_back(0);
+      for (int ii = 0; ii < j2; ++ii)
+        indices.push_back(1);
+      auto F_vs_M2 = JointFactorialCumulantsToOrdinaryCumulants(indices, 2);
+
+      for(auto el1 : F_vs_M1) {
+        for(auto el2 : F_vs_M2) {
+          ret += el1.second * el2.second * GetJointMomentsSampleCovariance(el1.first[0], el1.first[1],
+                                                                                 el2.first[0], el2.first[1]);
+        }
+      }
+
+      return ret;
+    }
+
+    /// Returns the covariance cov(C~_i1,j1,C~_i2,j2) computed from cumulants
+    /// \param  i1                    Order of the first variable of the first factorial cumulant
+    /// \param  j1                    Order of the second variable of the first factorial cumulant
+    /// \param  i2                    Order of the first variable of the second factorial cumulant
+    /// \param  j2                    Order of the second variable of the second factorial cumulant
+    /// \param  use_central_moments   Whether to use central (true) or ordinary (false) moments for the calculation
+    double GetJointFactorialCumulantsCovariance(int i1, int j1, int i2, int j2, bool use_central_moments = true) {
+      double ret = 0.0;
+
+      std::vector<int> indices;
+      for (int ii = 0; ii < i1; ++ii)
+        indices.push_back(0);
+      for (int ii = 0; ii < j1; ++ii)
+        indices.push_back(1);
+      auto FC_vs_C1 = JointFactorialCumulantsToOrdinaryCumulants(indices, 2);
+      indices.clear();
+      for (int ii = 0; ii < i2; ++ii)
+        indices.push_back(0);
+      for (int ii = 0; ii < j2; ++ii)
+        indices.push_back(1);
+      auto FC_vs_C2 = JointFactorialCumulantsToOrdinaryCumulants(indices, 2);
+
+      for(auto el1 : FC_vs_C1) {
+        for(auto el2 : FC_vs_C2) {
+          ret += el1.second * el2.second * GetJointCumulantsCovariance(el1.first[0], el1.first[1],
+                                                                       el2.first[0], el2.first[1],
+                                                                                 use_central_moments);
+        }
+      }
+
+      return ret;
     }
 
     /// Returns the joint cumulant ratio \kappa_i1,j1/\kappa_i2,j2 computed from (central) moments
