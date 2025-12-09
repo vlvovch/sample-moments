@@ -1,0 +1,52 @@
+cff-version: 1.2.0
+title: "sample-moments"
+message: "If you use this software, please cite it using the metadata from this file."
+type: software
+authors:
+  - family-names: Vovchenko
+    given-names: Volodymyr
+    orcid: "https://orcid.org/0000-0002-5652-7632"
+abstract: >-
+  A header-only C++ library for mean and standard error estimation of 
+  (joint) (higher-order) moments, central moments, cumulants, and 
+  factorial cumulants for one or two random variables.  The library 
+  calculates sample averages and standard error estimates to leading 
+  order in 1/√n via the Delta method.
+keywords:
+  - statistics
+  - moments
+  - cumulants
+  - factorial cumulants
+  - standard error
+  - sample statistics
+  - C++
+  - header-only
+license: MIT
+repository-code: "https://github.com/vlvovch/sample-moments"
+references:
+  - type: book
+    title: "The Advanced Theory of Statistics, Volume 1: Distribution Theory"
+    authors:
+      - family-names: "Kendall"
+        given-names: "Maurice G."
+      - family-names: "Stuart"
+        given-names: "Alan"
+    edition: "4"
+    year: 1977
+    publisher: "Macmillan"
+    address: "London"
+url: "https://github.com/vlvovch/sample-moments"
+version: "1.0.0"
+date-released: "2025-12-09"
+references:
+  - type: book
+    authors:
+      - family-names:  Kendall
+        given-names: Maurice
+      - family-names: Stuart
+        given-names: Alan
+    title: "The Advanced Theory of Statistics, Volume 1: Distribution Theory"
+    publisher: 
+      name: "Wiley"
+    edition: "6th"
+    year: 1994
