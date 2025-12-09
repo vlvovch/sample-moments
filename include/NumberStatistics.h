@@ -402,13 +402,18 @@ namespace SampleMoments {
 
     /// Returns the faactorial cumulant ratio C~r / C~q
     double GetFactorialCumulantRatio(int r, int q, bool use_central_moments = true) {
-      return GetFactorialCumulant(r, use_central_moments) / GetFactorialCumulant(q, use_central_moments);
+      double denominator = GetFactorialCumulant(q, use_central_moments);
+      if (denominator == 0.0)
+        return std::numeric_limits<double>::quiet_NaN();
+      return GetFactorialCumulant(r, use_central_moments) / denominator;
     }
 
     /// Returns the error estimate for the factorial cumulant ratio C~r / C~q
     double GetFactorialCumulantRatioError(int r, int q, bool use_central_moments = true) {
       double Cr = GetFactorialCumulant(r,use_central_moments);
       double Cq = GetFactorialCumulant(q,use_central_moments);
+      if (Cr == 0.0 || Cq == 0.0)
+        return std::numeric_limits<double>::quiet_NaN();
       double c1 = GetFactorialCumulantsCovariance(r,r,use_central_moments);
       double c2 = GetFactorialCumulantsCovariance(q,q,use_central_moments);
       double c1c2cov = GetFactorialCumulantsCovariance(r,q,use_central_moments);

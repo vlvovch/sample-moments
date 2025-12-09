@@ -328,7 +328,10 @@ namespace SampleMoments {
 
     /// Returns the joint cumulant ratio \kappa_i1,j2 / \kappa_i2,j2
     double GetJointCumulantRatio(int i1, int j1, int i2, int j2, bool use_central_moments = true) {
-      return GetJointCumulant(i1, j1, use_central_moments) / GetJointCumulant(i2, j2, use_central_moments);
+      double denominator = GetJointCumulant(i2, j2, use_central_moments);
+      if (denominator == 0.0)
+        return std::numeric_limits<double>::quiet_NaN();
+      return GetJointCumulant(i1, j1, use_central_moments) / denominator;
     }
 
     double GetJointCumulantRatio(const std::pair<int,int> &index1, const std::pair<int,int> &index2, bool use_central_moments = true)
@@ -340,6 +343,8 @@ namespace SampleMoments {
     double GetJointCumulantRatioError(int i1, int j1, int i2, int j2, bool use_central_moments = true) {
       double kappar = GetJointCumulant(i1, j1);
       double kappaq = GetJointCumulant(i2, j2);
+      if (kappar == 0.0 || kappaq == 0.0)
+        return std::numeric_limits<double>::quiet_NaN();
       double c1 = GetJointCumulantsCovariance(i1, j1, i1, j1, use_central_moments);
       double c2 = GetJointCumulantsCovariance(i2, j2, i2, j2, use_central_moments);
       double c1c2cov = GetJointCumulantsCovariance(i1, j1, i2, j2, use_central_moments);
@@ -377,13 +382,18 @@ namespace SampleMoments {
 
     /// Calculates the joint factorial cumulant ratio
     double GetJointFactorialCumulantRatio(int i1, int j1, int i2, int j2, bool use_central_moments = true) {
-      return GetJointFactorialCumulant(i1, j1, use_central_moments) / GetJointFactorialCumulant(i2, j2, use_central_moments);
+      double denominator = GetJointFactorialCumulant(i2, j2, use_central_moments);
+      if (denominator == 0.0)
+        return std::numeric_limits<double>::quiet_NaN();
+      return GetJointFactorialCumulant(i1, j1, use_central_moments) / denominator;
     }
 
     /// Calculates the joint factorial cumulant ratio error
     double GetJointFactorialCumulantRatioError(int i1, int j1, int i2, int j2, bool use_central_moments = true) {
       double Cr = GetJointFactorialCumulant(i1, j1, use_central_moments);
       double Cq = GetJointFactorialCumulant(i2,j2, use_central_moments);
+      if (Cr == 0.0 || Cq == 0.0)
+        return std::numeric_limits<double>::quiet_NaN();
       double c1 = GetJointFactorialCumulantsCovariance(i1,j1, i1, j1, use_central_moments);
       double c2 = GetJointFactorialCumulantsCovariance(i2,j2, i2, j2, use_central_moments);
       double c1c2cov = GetJointFactorialCumulantsCovariance(i1,j1, i2, j2, use_central_moments);
