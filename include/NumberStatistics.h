@@ -320,7 +320,10 @@ namespace SampleMoments {
 
     /// Returns the cumulant ratio \kappa_r / \kappa_q
     double GetCumulantRatio(int r, int q, bool use_central_moments = true) {
-      return GetCumulant(r, use_central_moments) / GetCumulant(q, use_central_moments);
+      double denominator = GetCumulant(q, use_central_moments);
+      if (denominator == 0.0)
+        return std::numeric_limits<double>::quiet_NaN();
+      return GetCumulant(r, use_central_moments) / denominator;
     }
 
     /// Returns the error estimate for the cumulant ratio \kappa_r / \kappa_q
@@ -333,6 +336,8 @@ namespace SampleMoments {
     double GetCumulantRatioError(int r, int q, bool use_central_moments = true) {
       double kappar = GetCumulant(r);
       double kappaq = GetCumulant(q);
+      if (kappar == 0.0 || kappaq == 0.0)
+        return std::numeric_limits<double>::quiet_NaN();
       double c1 = GetCumulantsCovariance(r,r,use_central_moments);
       double c2 = GetCumulantsCovariance(q,q,use_central_moments);
       double c1c2cov = GetCumulantsCovariance(r,q,use_central_moments);
