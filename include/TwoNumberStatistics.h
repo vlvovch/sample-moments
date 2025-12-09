@@ -341,8 +341,8 @@ namespace SampleMoments {
 
     /// Returns the error estimate for the joint cumulant ratio \kappa_i1,j2 / \kappa_i2,j2
     double GetJointCumulantRatioError(int i1, int j1, int i2, int j2, bool use_central_moments = true) {
-      double kappar = GetJointCumulant(i1, j1);
-      double kappaq = GetJointCumulant(i2, j2);
+      double kappar = GetJointCumulant(i1, j1, use_central_moments);
+      double kappaq = GetJointCumulant(i2, j2, use_central_moments);
       if (kappar == 0.0 || kappaq == 0.0)
         return std::numeric_limits<double>::quiet_NaN();
       double c1 = GetJointCumulantsCovariance(i1, j1, i1, j1, use_central_moments);
