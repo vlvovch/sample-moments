@@ -115,7 +115,7 @@ namespace SampleMoments {
     int64_t GetNumberOfObservations() const { return m_NumberOfObservations; }
 
     /// Whether the shift of the mean value is applied
-    bool IsMeanShifted() {
+    bool IsMeanShifted() const {
       return (m_MeanShift != 0.0);
     }
 
@@ -400,7 +400,7 @@ namespace SampleMoments {
       return std::sqrt(GetFactorialCumulantsCovariance(r, r, use_central_moments));
     }
 
-    /// Returns the faactorial cumulant ratio C~r / C~q
+    /// Returns the factorial cumulant ratio C~r / C~q
     double GetFactorialCumulantRatio(int r, int q, bool use_central_moments = true) {
       double denominator = GetFactorialCumulant(q, use_central_moments);
       if (denominator == 0.0)
@@ -465,6 +465,7 @@ namespace SampleMoments {
 
     /// Returns the error estimate for the factorial moment ratio Fr / Fq
     double GetFactorialMomentRatioError(int r, int q, bool use_central_moments = true) {
+      (void)use_central_moments;
       double Cr = GetFactorialMoment(r);
       double Cq = GetFactorialMoment(q);
       double c1 = GetFactorialMomentsCovariance(r,r);

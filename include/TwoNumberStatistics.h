@@ -107,7 +107,7 @@ namespace SampleMoments {
     /// Total number of observations
     int64_t GetNumberOfObservations() const { return m_NumberOfObservations; }
 
-    bool IsMeanShifted() {
+    bool IsMeanShifted() const {
       return (m_MeanShift1 != 0.0 || m_MeanShift2 != 0.0);
     }
 

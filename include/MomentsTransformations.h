@@ -159,8 +159,11 @@ namespace SampleMoments {
   typedef std::pair<int, Block> ColoredBlock;
   typedef std::vector<ColoredBlock> ColoredPartition;
 
-  /// Precompute partitions of a set into 2D blocks
-  std::vector< std::vector<ColoredPartition> > partitionsOfSet2DPrecomputed;
+  /// Accessor for precomputed partitions of a set into 2D blocks (function-local static for thread-safe init)
+  static std::vector< std::vector<ColoredPartition> >& PartitionsOfSet2DPrecomputed() {
+    static std::vector< std::vector<ColoredPartition> > partitions;
+    return partitions;
+  }
 
   /// Returns all partitions of a set {1,2,...,n} into m distinct colors of blocks via a recursive procedure
   /// Each element contains a vector of blocks, each block is a pair where the first element
@@ -170,8 +173,8 @@ namespace SampleMoments {
   /// \param n  The dimension of the set
   /// \param m  The number of block colors
   std::vector<ColoredPartition> ColoredPartitionsOfSet(int n, int m) {
-    if (m == 2 && n < partitionsOfSet2DPrecomputed.size())
-      return partitionsOfSet2DPrecomputed[n];
+    if (m == 2 && n < PartitionsOfSet2DPrecomputed().size())
+      return PartitionsOfSet2DPrecomputed()[n];
 
     if (n == 0)
       return std::vector<ColoredPartition>(); // empty set
@@ -212,8 +215,8 @@ namespace SampleMoments {
   void PrecomputePartitions(int nmax)
   {
     for (int n = 0; n <= nmax; ++n) {
-      if (n >= partitionsOfSet2DPrecomputed.size())
-        partitionsOfSet2DPrecomputed.push_back(ColoredPartitionsOfSet(n, 2));
+      if (n >= PartitionsOfSet2DPrecomputed().size())
+        PartitionsOfSet2DPrecomputed().push_back(ColoredPartitionsOfSet(n, 2));
     }
   }
 
