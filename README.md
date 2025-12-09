@@ -91,6 +91,10 @@ Sample normalized excess kurtosis: -0.00355133 +- 0.00361298
 
 See [examples](examples/) for more use cases and annotated header files for all the features.
 
+## Thread safety
+
+Library classes (`NumberStatistics`, `TwoNumberStatistics`) are not thread-safe. If you access a single instance from multiple threads, guard calls with external synchronization or use separate instances per thread.
+
 
 ## Notes
 
@@ -102,4 +106,4 @@ and standard error estimates up to 8th order.
 Beware of the round-off errors, especially when the first moment is large but the (higher-order) central moments are small.
   See [normal_distribution.cpp](examples/normal_distribution.cpp) for an example on how to deal with this.
 
-*Copyright (C) 2021 Volodymyr Vovchenko*
+*Copyright (C) 2021-2025 Volodymyr Vovchenko*

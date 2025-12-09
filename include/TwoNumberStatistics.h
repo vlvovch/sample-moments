@@ -20,7 +20,7 @@ namespace SampleMoments {
    * \brief A class implementing calculation of various sample statistics and standard errors for two variables.
    *        For example this includes joint (higher-order) moments, central moments, cumulants, and ratios of such quantities.
    *
-   *
+   *        Note: Instances are not thread-safe; protect with external synchronization if accessed from multiple threads.
    */
   class TwoNumberStatistics {
     /// The maximum order of (joint) moments stored

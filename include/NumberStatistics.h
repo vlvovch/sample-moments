@@ -20,7 +20,7 @@ namespace SampleMoments {
    * \brief A class implementing calculation of various sample statistics, and their standard errors, for a single variable.
    *        For example this includes (higher-order) moments, central moments, cumulants, and ratios of such quantities.
    *
-   *
+   *        Note: Instances are not thread-safe; protect with external synchronization if accessed from multiple threads.
    */
   class NumberStatistics {
     /// The maximum order of moments stored
