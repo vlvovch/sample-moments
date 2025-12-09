@@ -9,6 +9,9 @@
 #include <random>
 #include <iostream>
 #include <iomanip>
+#include <vector>
+#include <cmath>
+#include <limits>
 
 double binomial_cumulant(int k, int n, double p)
 {
@@ -97,6 +100,34 @@ int main(int argc, char* argv[]) {
     std::cout << std::setw(14) << stats.GetCumulantError(k) << " ";
     std::cout << std::setw(14) << "Deviation " << "(sigmas):" << " ";
     std::cout << (binomial_cumulant(k, n, p) - stats.GetCumulant(k)) /stats.GetCumulantError(k) << " ";
+    std::cout << std::endl;
+    std::cout << std::endl;
+  }
+
+  // Cumulant ratios of interest
+  struct RatioSpec { int num; int den; };
+  std::vector<RatioSpec> ratio_specs = { {2, 1}, {3, 2}, {4, 2}, {6, 2} };
+
+  std::cout << "Cumulant ratios:" << std::endl;
+  for (const auto &ratio : ratio_specs) {
+    const double expected_num = binomial_cumulant(ratio.num, n, p);
+    const double expected_den = binomial_cumulant(ratio.den, n, p);
+    double expected_ratio = (expected_den == 0.0) ? std::numeric_limits<double>::quiet_NaN() : expected_num / expected_den;
+    const double observed = stats.GetCumulantRatio(ratio.num, ratio.den);
+    const double observed_err = stats.GetCumulantRatioError(ratio.num, ratio.den);
+    double deviation = std::numeric_limits<double>::quiet_NaN();
+    if (observed_err != 0.0 && !std::isnan(observed_err))
+      deviation = (expected_ratio - observed) / observed_err;
+
+    std::cout << std::setw(10) << "\\kappa_" << ratio.num << "/\\kappa_" << ratio.den << ": ";
+    std::cout << std::setw(14) << "Expected:" << " ";
+    std::cout << std::setw(14) << expected_ratio << std::endl;
+    std::cout << std::setw(14) << " " << "   ";
+    std::cout << std::setw(14) << "Observed:" << " ";
+    std::cout << std::setw(14) << observed << " +- ";
+    std::cout << std::setw(14) << observed_err << " ";
+    std::cout << std::setw(14) << "Deviation " << "(sigmas):" << " ";
+    std::cout << deviation << " ";
     std::cout << std::endl;
     std::cout << std::endl;
   }
