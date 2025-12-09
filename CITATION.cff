@@ -21,6 +21,13 @@ keywords:
   - sample statistics
   - C++
   - header-only
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.17864346
+    description: The version 1.0.0 release
+  - type: doi
+    value: 10.5281/zenodo.17864345
+    description: The concept DOI representing all versions
 license: MIT
 repository-code: "https://github.com/vlvovch/sample-moments"
 references:

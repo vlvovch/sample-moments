@@ -1,5 +1,7 @@
 # sample-moments
 
+[![DOI](https://zenodo.org/badge/328334627.svg)](https://doi.org/10.5281/zenodo.17864345)
+
 **sample-moments** is a header-only C++ library 
 to calculate sample averages and standard error estimates of 
 (joint) (higher-order) moments, central moments and 
