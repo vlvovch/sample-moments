@@ -148,7 +148,7 @@ namespace SampleMoments {
     /// \param observations A vector of observations
     void AddObservations(const std::vector<double> &observations) {
       // Compute moments_sum from the whole observations vector to minimize round-off errors
-      auto moment_sums = std::vector<double>(m_Nmax, 0.);
+      auto moment_sums = std::vector<double>(m_Nmax + 1, 0.);
 
       for (const double &N : observations) {
         UpdateMomentSumsWithObservation(N, moment_sums);
@@ -560,7 +560,7 @@ namespace SampleMoments {
 
   /// Set the moments externally
   void SetMomentSumsExternally(const std::vector<double> &momentSums, int64_t nobservations) {
-    Reset(momentSums.size() + 1);
+    Reset(momentSums.size());
     m_MomentSums[0] = static_cast<double>(nobservations);
     for(int i = 0; i < momentSums.size(); ++i) {
       m_MomentSums[i + 1] = momentSums[i];

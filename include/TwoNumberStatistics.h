@@ -143,7 +143,7 @@ namespace SampleMoments {
     /// \param observations A vector of observations
     void AddObservations(const std::vector<std::pair<double, double>> &observations) {
       // Compute moments_sum from the whole observations vector to minimize round-off errors
-      auto moment_sums = std::vector<std::vector<double> >(m_Nmax, std::vector<double>(m_Nmax, 0.));
+      auto moment_sums = std::vector<std::vector<double> >(m_Nmax + 1, std::vector<double>(m_Nmax + 1, 0.));
 
       for (const auto &N : observations) {
         UpdateMomentSumsWithObservation(N.first, N.second, moment_sums);
