@@ -508,13 +508,18 @@ namespace SampleMoments {
 
     /// Returns the reduced factorial cumulant fc(n) = FC(n) / [FC(1)]^n
     double GetReducedFactorialCumulant(int n) {
-      return GetFactorialCumulant(n) / std::pow(GetFactorialCumulant(1), n);
+      double fc1 = GetFactorialCumulant(1);
+      if (fc1 == 0.0)
+        return std::numeric_limits<double>::quiet_NaN();
+      return GetFactorialCumulant(n) / std::pow(fc1, n);
     }
 
     /// Returns the error estimate for the reduced factorial cumulant fc(n) = FC(n) / [FC(1)]^n
     double GetReducedFactorialCumulantError(int n, bool use_central_moments = true) {
       double fcn = GetFactorialCumulant(n, use_central_moments);
       double fc1 = GetFactorialCumulant(1, use_central_moments);
+      if (fc1 == 0.0)
+        return std::numeric_limits<double>::quiet_NaN();
       double c1 = GetFactorialCumulantsCovariance(n,n, use_central_moments);
       double c2 = GetFactorialCumulantsCovariance(1,1, use_central_moments);
       double c1c2cov = GetFactorialCumulantsCovariance(n,1, use_central_moments);
@@ -525,13 +530,20 @@ namespace SampleMoments {
 
     /// Returns the reduced factorial moment f(n) = F(n) / [F(1)]^n
     double GetReducedFactorialMoment(int n) {
-      return GetFactorialMoment(n) / std::pow(GetFactorialCumulant(1), n);
+      double fc1 = GetFactorialMomentsCovariance(1, 1); // Only need mean, which is same as factorial cumulant(1)
+      // Actually fc(1) = mean.
+      fc1 = GetMean();
+      if (fc1 == 0.0)
+        return std::numeric_limits<double>::quiet_NaN();
+      return GetFactorialMoment(n) / std::pow(fc1, n);
     }
 
     /// Returns the error estimate for the reduced factorial moment f(n) = F(n) / [F(1)]^n
     double GetReducedFactorialMomentError(int n) {
       double fcn = GetFactorialMoment(n);
       double fc1 = GetFactorialMoment(1);
+      if (fc1 == 0.0)
+        return std::numeric_limits<double>::quiet_NaN();
       double c1 = GetFactorialMomentsCovariance(n,n);
       double c2 = GetFactorialMomentsCovariance(1,1);
       double c1c2cov = GetFactorialMomentsCovariance(n,1);

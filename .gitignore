@@ -91,3 +91,4 @@ local*/*
 
 # Testing
 Testing*/*
+.cache*/*

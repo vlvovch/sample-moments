@@ -402,9 +402,13 @@ namespace SampleMoments {
 
     /// Calculates the joint reduced factorial cumulant ratio C~i,j/[C~1,0]^i[C~0,1]^j
     double GetJointReducedFactorialCumulant(int i, int j, bool use_central_moments = true) {
+      double C1 = GetJointFactorialCumulant(1, 0, use_central_moments);
+      double C2 = GetJointFactorialCumulant(0, 1, use_central_moments);
+      if (C1 == 0.0 || C2 == 0.0)
+        return std::numeric_limits<double>::quiet_NaN();
       return GetJointFactorialCumulant(i, j, use_central_moments)
-      / std::pow(GetJointFactorialCumulant(1, 0, use_central_moments), i)
-      / std::pow(GetJointFactorialCumulant(0, 1, use_central_moments), j);
+      / std::pow(C1, i)
+      / std::pow(C2, j);
     }
 
     /// Calculates the joint reduced factorial cumulant ratio error
@@ -412,6 +416,10 @@ namespace SampleMoments {
       double Cij = GetJointFactorialCumulant(i, j, use_central_moments);
       double C1  = GetJointFactorialCumulant(1,0, use_central_moments);
       double C2  = GetJointFactorialCumulant(0,1, use_central_moments);
+      
+      if (C1 == 0.0 || C2 == 0.0)
+        return std::numeric_limits<double>::quiet_NaN();
+
       double d1 = 1. / std::pow(C1,i) / std::pow(C2,j);
       double d2 = -i * Cij / std::pow(C1,i+1) / std::pow(C2,j);
       double d3 = -j * Cij / std::pow(C1,i) / std::pow(C2,j+1);
@@ -474,9 +482,13 @@ namespace SampleMoments {
 
     /// Calculates the joint reduced factorial moment ratio Fi,j/[F1,0]^i[F0,1]^j
     double GetJointReducedFactorialMoment(int i, int j) {
+      double C1 = GetJointFactorialMoment(1, 0);
+      double C2 = GetJointFactorialMoment(0, 1);
+      if (C1 == 0.0 || C2 == 0.0)
+        return std::numeric_limits<double>::quiet_NaN();
       return GetJointFactorialMoment(i, j)
-             / std::pow(GetJointFactorialMoment(1, 0), i)
-             / std::pow(GetJointFactorialMoment(0, 1), j);
+             / std::pow(C1, i)
+             / std::pow(C2, j);
     }
 
     /// Calculates the joint reduced factorial moment ratio error
@@ -484,6 +496,10 @@ namespace SampleMoments {
       double Cij = GetJointFactorialMoment(i, j);
       double C1  = GetJointFactorialMoment(1,0);
       double C2  = GetJointFactorialMoment(0,1);
+      
+      if (C1 == 0.0 || C2 == 0.0)
+        return std::numeric_limits<double>::quiet_NaN();
+
       double d1 = 1. / std::pow(C1,i) / std::pow(C2,j);
       double d2 = -i * Cij / std::pow(C1,i+1) / std::pow(C2,j);
       double d3 = -j * Cij / std::pow(C1,i) / std::pow(C2,j+1);

@@ -103,6 +103,8 @@ ctest --test-dir build
 
 Library classes (`NumberStatistics`, `TwoNumberStatistics`) are not thread-safe. If you access a single instance from multiple threads, guard calls with external synchronization or use separate instances per thread.
 
+Same applies to the global partition cache initialization via `SampleMoments::PrecomputePartitions`. While optional and usually unnecessary, if called, it should be done from a single thread before using the library in a multi-threaded context.
+
 
 ## Notes
 
