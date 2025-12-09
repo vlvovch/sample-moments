@@ -41,4 +41,16 @@ TEST(TwoNumberStatistics, JointMomentsAndCumulantsSmallSample) {
   double k20 = stats.GetJointCumulant(2, 0);
   double k11 = stats.GetJointCumulant(1, 1);
   ExpectNear(stats.GetJointCumulantRatio(2, 0, 1, 1), k20 / k11);
+
+  // Joint factorial moments and cumulants
+  // F_{1,0} = <N1>, F_{0,1} = <N2>, F_{1,1} = <N1 N2>
+  ExpectNear(stats.GetJointFactorialMoment(1, 0), stats.GetMean1());
+  ExpectNear(stats.GetJointFactorialMoment(0, 1), stats.GetMean2());
+  ExpectNear(stats.GetJointFactorialMoment(1, 1), stats.GetJointMoment(1, 1));
+
+  // Joint factorial cumulant kappa_{1,1} matches covariance for these orders
+  ExpectNear(stats.GetJointFactorialCumulant(1, 1), stats.GetJointCumulant(1, 1));
+  // Ratio exercises factorial cumulant ratio path
+  ExpectNear(stats.GetJointFactorialCumulantRatio(1, 1, 1, 0),
+             stats.GetJointFactorialCumulant(1, 1) / stats.GetJointFactorialCumulant(1, 0));
 }

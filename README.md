@@ -3,7 +3,7 @@
 **sample-moments** is a header-only C++ library 
 to calculate sample averages and standard error estimates of 
 (joint) (higher-order) moments, central moments and 
-cumulants for one or two random variables.
+cumulants for one or two random variables. It also provides factorial moments/factorial cumulants and ratios, with analytic standard-error estimates via the Delta method.
 
 Such a task arises when one tries to estimate various properties 
 of a distribution from a finite set of observations sampled from
@@ -89,7 +89,15 @@ A sample output is the following:
 Sample normalized excess kurtosis: -0.00355133 +- 0.00361298
 ```
 
-See [examples](examples/) for more use cases and annotated header files for all the features.
+See [examples](examples/) for more use cases and annotated header files for all the features. Examples cover basic cumulants as well as factorial moments/cumulants.
+
+## Building / Testing
+
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DINCLUDE_TESTS=ON
+cmake --build build
+ctest --test-dir build
+```
 
 ## Thread safety
 

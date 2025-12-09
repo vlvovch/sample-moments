@@ -41,8 +41,11 @@ TEST(NumberStatistics, MomentsAndCumulantsSmallSample) {
   // Factorial moments / cumulants for non-negative data
   ExpectNear(stats.GetFactorialMoment(1), stats.GetMean());
   ExpectNear(stats.GetFactorialMoment(2), 8.0 / 3.0); // E[N(N-1)] over {1,2,3} is (0+2+6)/3 = 8/3
+  ExpectNear(stats.GetFactorialMomentRatio(2, 1), (8.0 / 3.0) / 2.0);
+
   ExpectNear(stats.GetFactorialCumulant(1), stats.GetMean());
   ExpectNear(stats.GetFactorialCumulant(2), -4.0 / 3.0); // for one variable: FC2 = C2 - C1
+  ExpectNear(stats.GetFactorialCumulantRatio(2, 1), (-4.0 / 3.0) / 2.0);
 }
 
 TEST(NumberStatistics, MeanShiftDoesNotChangeResults) {

@@ -41,6 +41,16 @@ double binomial_cumulant(int k, int n, double p)
   return 0.;
 }
 
+double binomial_factorial_cumulant(int k, int n, double p) {
+  if (k < 1)
+    return 0.0;
+  double fact = 1.0;
+  for (int i = 1; i < k; ++i)
+    fact *= static_cast<double>(i);
+  double sign = ((k + 1) % 2 == 0) ? 1.0 : -1.0; // (-1)^{k+1}
+  return n * fact * sign * std::pow(p, k);
+}
+
 /// Calculates cumulants and error estimates from observations sampled from the normal distribution
 /// and compares the results with the true cumulant values
 int main(int argc, char* argv[]) {
@@ -120,6 +130,48 @@ int main(int argc, char* argv[]) {
       deviation = (expected_ratio - observed) / observed_err;
 
     std::cout << std::setw(10) << "\\kappa_" << ratio.num << "/\\kappa_" << ratio.den << ": ";
+    std::cout << std::setw(14) << "Expected:" << " ";
+    std::cout << std::setw(14) << expected_ratio << std::endl;
+    std::cout << std::setw(14) << " " << "   ";
+    std::cout << std::setw(14) << "Observed:" << " ";
+    std::cout << std::setw(14) << observed << " +- ";
+    std::cout << std::setw(14) << observed_err << " ";
+    std::cout << std::setw(14) << "Deviation " << "(sigmas):" << " ";
+    std::cout << deviation << " ";
+    std::cout << std::endl;
+    std::cout << std::endl;
+  }
+
+  // Factorial cumulants (more natural for count data) and a few ratios
+  std::cout << "Factorial cumulants:" << std::endl;
+  for (int k = 1; k <= 4; ++k) {
+    const double expected_fc = binomial_factorial_cumulant(k, n, p);
+    std::cout << std::setw(14) << "C~" << k << ": ";
+    std::cout << std::setw(14) << "Expected:" << " ";
+    std::cout << std::setw(14) << expected_fc << std::endl;
+    std::cout << std::setw(14) << " " << "   ";
+    std::cout << std::setw(14) << "Observed:" << " ";
+    std::cout << std::setw(14) << stats.GetFactorialCumulant(k) << " +- ";
+    std::cout << std::setw(14) << stats.GetFactorialCumulantError(k) << " ";
+    std::cout << std::setw(14) << "Deviation " << "(sigmas):" << " ";
+    std::cout << (expected_fc - stats.GetFactorialCumulant(k)) / stats.GetFactorialCumulantError(k) << " ";
+    std::cout << std::endl;
+    std::cout << std::endl;
+  }
+
+  std::vector<RatioSpec> fc_ratio_specs = { {2, 1}, {3, 1}, {4, 1} };
+  std::cout << "Factorial cumulant ratios:" << std::endl;
+  for (const auto &ratio : fc_ratio_specs) {
+    const double expected_num = binomial_factorial_cumulant(ratio.num, n, p);
+    const double expected_den = binomial_factorial_cumulant(ratio.den, n, p);
+    double expected_ratio = (expected_den == 0.0) ? std::numeric_limits<double>::quiet_NaN() : expected_num / expected_den;
+    const double observed = stats.GetFactorialCumulantRatio(ratio.num, ratio.den);
+    const double observed_err = stats.GetFactorialCumulantRatioError(ratio.num, ratio.den);
+    double deviation = std::numeric_limits<double>::quiet_NaN();
+    if (observed_err != 0.0 && !std::isnan(observed_err))
+      deviation = (expected_ratio - observed) / observed_err;
+
+    std::cout << std::setw(10) << "C~" << ratio.num << "/C~" << ratio.den << ": ";
     std::cout << std::setw(14) << "Expected:" << " ";
     std::cout << std::setw(14) << expected_ratio << std::endl;
     std::cout << std::setw(14) << " " << "   ";

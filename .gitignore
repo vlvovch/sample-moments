@@ -88,3 +88,6 @@ local*/*
 
 # CLion
 .idea
+
+# Testing
+Testing

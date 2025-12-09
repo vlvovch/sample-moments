@@ -9,6 +9,7 @@
 #include <random>
 #include <iostream>
 #include <iomanip>
+#include <cmath>
 
 /// Cumulants of the binomial distribution, up to 6th order
 double binomial_cumulant(int k, int n, double p)
@@ -37,6 +38,16 @@ double binomial_cumulant(int k, int n, double p)
     - (1 - 2*p)*p - 2*(1 - p)*p) - p*((1 - 2*p)*(1 - p) - (1 - 2*p)*p 
     - 2*(1 - p)*p)));
   return 0.;
+}
+
+double binomial_factorial_cumulant(int k, int n, double p) {
+  if (k < 1)
+    return 0.0;
+  double fact = 1.0;
+  for (int i = 1; i < k; ++i)
+    fact *= static_cast<double>(i);
+  double sign = ((k + 1) % 2 == 0) ? 1.0 : -1.0; // (-1)^{k+1}
+  return n * fact * sign * std::pow(p, k);
 }
 
 /// Calculates cumulants and error estimates from observations sampled from the binomial distribution
@@ -80,6 +91,7 @@ int main(int argc, char* argv[]) {
 
   int kmax = 6;
   std::vector<int> one_sigma_counts(kmax + 1, 0);
+  std::vector<int> one_sigma_counts_fc(kmax + 1, 0);
 
   for(int ii = 0; ii < iters; ++ii) {
     stats.Clear();
@@ -92,6 +104,9 @@ int main(int argc, char* argv[]) {
       double dev = (stats.GetCumulant(k) - binomial_cumulant(k, n, p)) / stats.GetCumulantError(k);
       if (abs(dev) < 1.)
         one_sigma_counts[k]++;
+      double dev_fc = (stats.GetFactorialCumulant(k) - binomial_factorial_cumulant(k, n, p)) / stats.GetFactorialCumulantError(k);
+      if (abs(dev_fc) < 1.)
+        one_sigma_counts_fc[k]++;
     }
   }
 
@@ -99,6 +114,13 @@ int main(int argc, char* argv[]) {
   for(int k = 1; k <= 6; ++k) {
     std::cout << std::setw(14) << "\\kappa_" << k << ": ";
     std::cout << std::setw(14) << static_cast<double>(one_sigma_counts[k]) / iters << std::endl;
+    std::cout << std::endl;
+  }
+
+  std::cout << "Fraction of samples within one-sigma for factorial cumulants: " << std::endl;
+  for(int k = 1; k <= 6; ++k) {
+    std::cout << std::setw(14) << "C~" << k << ": ";
+    std::cout << std::setw(14) << static_cast<double>(one_sigma_counts_fc[k]) / iters << std::endl;
     std::cout << std::endl;
   }
 
