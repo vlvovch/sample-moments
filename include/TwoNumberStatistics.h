@@ -975,7 +975,7 @@ namespace SampleMoments {
 
               Nav2 *= -m_Moments[0][1];
             }
-            Nav1 *= -m_Moments[1][0];;
+            Nav1 *= -m_Moments[1][0];
           }
         }
       }
