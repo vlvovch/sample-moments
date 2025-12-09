@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <limits>
 
 namespace SampleMoments {
   /**
@@ -176,6 +177,8 @@ namespace SampleMoments {
     double GetJointMomentsSampleCovariance(int r, int s, int u, int v) {
       assert(r + u <= m_Nmax && s + v <= m_Nmax);
       CalculateMoments();
+      if (m_nE <= 0.0)
+        return std::numeric_limits<double>::quiet_NaN();
       return (m_Moments[r + u][s + v] - m_Moments[r][s] * m_Moments[u][v]) / m_nE;
     }
 
@@ -239,6 +242,8 @@ namespace SampleMoments {
       assert(m_Nmax >= 2);
       assert(r + u <= m_Nmax);
       assert(s + v <= m_Nmax);
+      if (m_nE <= 0.0)
+        return std::numeric_limits<double>::quiet_NaN();
 
       double ret = 0.;
 

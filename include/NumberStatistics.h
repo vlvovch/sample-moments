@@ -13,6 +13,7 @@
 #include <cassert>
 #include <cmath>
 #include <cstdint>
+#include <limits>
 
 namespace SampleMoments {
   /**
@@ -177,6 +178,8 @@ namespace SampleMoments {
     double GetMomentsSampleCovariance(int r, int q) {
       assert(r + q <= m_Nmax);
       CalculateMoments();
+      if (m_nE <= 0.0)
+        return std::numeric_limits<double>::quiet_NaN();
       return (m_Moments[r + q] - m_Moments[r] * m_Moments[q]) / m_nE;
     }
 
@@ -215,6 +218,8 @@ namespace SampleMoments {
       assert(r + q <= m_Nmax);
       if (r <= 1 || q <= 1)
         return 0.0;
+      if (m_nE <= 0.0)
+        return std::numeric_limits<double>::quiet_NaN();
 
       double ret = 0.0;
 
