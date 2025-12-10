@@ -1,0 +1,5 @@
+add_test([=[NumberStatistics.MomentsAndCumulantsSmallSample]=]  /home/runner/work/sample-moments/sample-moments/_codeql_build_dir/test/test_NumberStatistics [==[--gtest_filter=NumberStatistics.MomentsAndCumulantsSmallSample]==] --gtest_also_run_disabled_tests)
+set_tests_properties([=[NumberStatistics.MomentsAndCumulantsSmallSample]=]  PROPERTIES WORKING_DIRECTORY /home/runner/work/sample-moments/sample-moments/_codeql_build_dir/test SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
+add_test([=[NumberStatistics.MeanShiftDoesNotChangeResults]=]  /home/runner/work/sample-moments/sample-moments/_codeql_build_dir/test/test_NumberStatistics [==[--gtest_filter=NumberStatistics.MeanShiftDoesNotChangeResults]==] --gtest_also_run_disabled_tests)
+set_tests_properties([=[NumberStatistics.MeanShiftDoesNotChangeResults]=]  PROPERTIES WORKING_DIRECTORY /home/runner/work/sample-moments/sample-moments/_codeql_build_dir/test SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
+set(  test_NumberStatistics_TESTS NumberStatistics.MomentsAndCumulantsSmallSample NumberStatistics.MeanShiftDoesNotChangeResults)

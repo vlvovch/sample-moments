@@ -1,0 +1,5 @@
+if(EXISTS "/home/runner/work/sample-moments/sample-moments/_codeql_build_dir/test/test_NumberStatistics[1]_tests.cmake")
+  include("/home/runner/work/sample-moments/sample-moments/_codeql_build_dir/test/test_NumberStatistics[1]_tests.cmake")
+else()
+  add_test(test_NumberStatistics_NOT_BUILT test_NumberStatistics_NOT_BUILT)
+endif()

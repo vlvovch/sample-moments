@@ -1,0 +1,5 @@
+if(EXISTS "/home/runner/work/sample-moments/sample-moments/_codeql_build_dir/test/test_PartitionsOfSet[1]_tests.cmake")
+  include("/home/runner/work/sample-moments/sample-moments/_codeql_build_dir/test/test_PartitionsOfSet[1]_tests.cmake")
+else()
+  add_test(test_PartitionsOfSet_NOT_BUILT test_PartitionsOfSet_NOT_BUILT)
+endif()

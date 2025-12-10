@@ -1,0 +1,5 @@
+add_test([=[PartitionsOfSet.BellNumbers]=]  /home/runner/work/sample-moments/sample-moments/_codeql_build_dir/test/test_PartitionsOfSet [==[--gtest_filter=PartitionsOfSet.BellNumbers]==] --gtest_also_run_disabled_tests)
+set_tests_properties([=[PartitionsOfSet.BellNumbers]=]  PROPERTIES WORKING_DIRECTORY /home/runner/work/sample-moments/sample-moments/_codeql_build_dir/test SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
+add_test([=[PartitionsOfSet.Partitions]=]  /home/runner/work/sample-moments/sample-moments/_codeql_build_dir/test/test_PartitionsOfSet [==[--gtest_filter=PartitionsOfSet.Partitions]==] --gtest_also_run_disabled_tests)
+set_tests_properties([=[PartitionsOfSet.Partitions]=]  PROPERTIES WORKING_DIRECTORY /home/runner/work/sample-moments/sample-moments/_codeql_build_dir/test SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
+set(  test_PartitionsOfSet_TESTS PartitionsOfSet.BellNumbers PartitionsOfSet.Partitions)
