@@ -82,6 +82,7 @@ examples/*.exe
 
 # build
 build*/*
+_codeql*/
 Debug*/*
 Release*/*
 local*/*
