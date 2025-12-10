@@ -1,0 +1,1 @@
+/home/runner/work/sample-moments/.codeql-scratch/dbs/cpp/working/autobuild/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/test_TwoNumberStatistics.dir/link.d CMakeFiles/test_TwoNumberStatistics.dir/test_TwoNumberStatistics.cpp.o -o test_TwoNumberStatistics  ../lib/libgtest_main.a ../lib/libgtest.a
