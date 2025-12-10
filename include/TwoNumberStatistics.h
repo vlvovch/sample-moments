@@ -35,7 +35,7 @@ namespace SampleMoments {
     /// The sample means of the central moments, <(N_1-<N_1>)^k (N_2-<N_2>)^m>. Populated by CalculateMoments()
     std::vector<std::vector<double> > m_CentralMoments;
 
-    /// Shifts all moments by a consant values
+    /// Shifts all moments by a constant values
     /// Can be useful to avoid large round-off errors if the expected mean is known
     /// Does not affect the central moments
     double m_MeanShift1, m_MeanShift2;

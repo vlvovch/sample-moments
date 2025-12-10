@@ -1,0 +1,1 @@
+/home/runner/work/sample-moments/.codeql-scratch/dbs/cpp/working/autobuild/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/test_PartitionsOfSet.dir/link.d CMakeFiles/test_PartitionsOfSet.dir/test_PartitionsOfSet.cpp.o -o test_PartitionsOfSet  ../lib/libgtest_main.a ../lib/libgtest.a

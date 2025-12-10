@@ -1,0 +1,1 @@
+/home/runner/work/sample-moments/.codeql-scratch/dbs/cpp/working/autobuild/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/example_normal_distribution_frequencies.dir/link.d CMakeFiles/example_normal_distribution_frequencies.dir/normal_distribution_frequencies.cpp.o -o example_normal_distribution_frequencies

@@ -35,7 +35,7 @@ namespace SampleMoments {
     /// The sample means of the central moments, <(N-<N>)^k>. Populated by CalculateMoments()
     std::vector<double> m_CentralMoments;
 
-    /// Shifts all moments by a consant value
+    /// Shifts all moments by a constant value
     /// Can be useful to avoid large round-off errors if the expected mean is known
     /// Does not affect the central moments
     double m_MeanShift;
@@ -56,7 +56,7 @@ namespace SampleMoments {
      * \brief Construct a new NumberStatistics object.
      * 
      * \param nmax           The maximum order of moments to be stored
-     * \param observations   The vector of
+     * 
      * For the error estimation nmax must be at least twice larger than the order of the moment to be estimated
      */
     NumberStatistics(int nmax = 16) {
@@ -621,7 +621,7 @@ namespace SampleMoments {
 
     /// Returns the sample covariance for r-th and q-th moments
     /// \param  r               Order of the first moment
-    /// \param  q               Order of the sefond moment
+    /// \param  q               Order of the second moment
     /// \param  central_moment  Whether the covariance is for central (true) or ordinary (false) moments
     double CalculateMomentsSampleCovariance(int r, int q, bool central_moment) {
       if (central_moment)
