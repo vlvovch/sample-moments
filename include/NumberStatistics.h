@@ -195,11 +195,16 @@ namespace SampleMoments {
     double GetMomentRatioError(int r, int q) {
       double c1 = GetMoment(r);
       double c2 = GetMoment(q);
+      if (c1 == 0.0 || c2 == 0.0)
+        return std::numeric_limits<double>::quiet_NaN();
       double c1Dev = GetMomentsSampleCovariance(r, r);
       double c2Dev = GetMomentsSampleCovariance(q, q);
       double c1c2cov = GetMomentsSampleCovariance(r, q);
 
-      return std::abs(c1 / c2) * std::sqrt(c1Dev / c1 / c1 + c2Dev / c2 / c2 - 2. * c1c2cov / c1 / c2);
+      double variance = c1Dev / c1 / c1 + c2Dev / c2 / c2 - 2. * c1c2cov / c1 / c2;
+      if (variance < 0.0)
+        variance = 0.0; // Protect against numerical errors causing negative variance
+      return std::abs(c1 / c2) * std::sqrt(variance);
     }
 
     /// Returns the r-th central moment, \mu_r = <(N-<N>)^r>
@@ -244,11 +249,16 @@ namespace SampleMoments {
     double GetCentralMomentRatioError(int r, int q) {
       double c1 = GetCentralMoment(r);
       double c2 = GetCentralMoment(q);
+      if (c1 == 0.0 || c2 == 0.0)
+        return std::numeric_limits<double>::quiet_NaN();
       double c1Dev = GetCentralMomentsSampleCovariance(r, r);
       double c2Dev = GetCentralMomentsSampleCovariance(q, q);
       double c1c2cov = GetCentralMomentsSampleCovariance(r, q);
 
-      return std::abs(c1 / c2) * std::sqrt(c1Dev / c1 / c1 + c2Dev / c2 / c2 - 2. * c1c2cov / c1 / c2);
+      double variance = c1Dev / c1 / c1 + c2Dev / c2 / c2 - 2. * c1c2cov / c1 / c2;
+      if (variance < 0.0)
+        variance = 0.0; // Protect against numerical errors causing negative variance
+      return std::abs(c1 / c2) * std::sqrt(variance);
     }
 
     /// Returns the r-th order cumulant \kappa_r
@@ -341,7 +351,10 @@ namespace SampleMoments {
       double c1 = GetCumulantsCovariance(r,r,use_central_moments);
       double c2 = GetCumulantsCovariance(q,q,use_central_moments);
       double c1c2cov = GetCumulantsCovariance(r,q,use_central_moments);
-      return std::abs(kappar/kappaq) * std::sqrt(c1/kappar/kappar + c2/kappaq/kappaq - 2. * c1c2cov/kappar/kappaq);
+      double variance = c1/kappar/kappar + c2/kappaq/kappaq - 2. * c1c2cov/kappar/kappaq;
+      if (variance < 0.0)
+        variance = 0.0; // Protect against numerical errors causing negative variance
+      return std::abs(kappar/kappaq) * std::sqrt(variance);
     }
 
     /// Returns the r-th cumulant scaled by the mean \kappa_r / <N>
@@ -397,7 +410,10 @@ namespace SampleMoments {
 
     /// Returns the error estimate for factorial cumulant C~r
     double GetFactorialCumulantError(int r, bool use_central_moments = true) {
-      return std::sqrt(GetFactorialCumulantsCovariance(r, r, use_central_moments));
+      double cov = GetFactorialCumulantsCovariance(r, r, use_central_moments);
+      if (cov < 0.0)
+        cov = 0.0; // Protect against numerical errors
+      return std::sqrt(cov);
     }
 
     /// Returns the factorial cumulant ratio C~r / C~q
@@ -417,7 +433,10 @@ namespace SampleMoments {
       double c1 = GetFactorialCumulantsCovariance(r,r,use_central_moments);
       double c2 = GetFactorialCumulantsCovariance(q,q,use_central_moments);
       double c1c2cov = GetFactorialCumulantsCovariance(r,q,use_central_moments);
-      return std::abs(Cr/Cq) * std::sqrt(c1/Cr/Cr + c2/Cq/Cq - 2. * c1c2cov/Cr/Cq);
+      double variance = c1/Cr/Cr + c2/Cq/Cq - 2. * c1c2cov/Cr/Cq;
+      if (variance < 0.0)
+        variance = 0.0; // Protect against numerical errors causing negative variance
+      return std::abs(Cr/Cq) * std::sqrt(variance);
     }
 
     /// Returns the covariance between the two factorial moments cov(Fr, Fq)
@@ -455,12 +474,18 @@ namespace SampleMoments {
 
     /// Returns the error estimate for factorial moment Fr
     double GetFactorialMomentError(int r) {
-      return std::sqrt(GetFactorialMomentsCovariance(r, r));
+      double cov = GetFactorialMomentsCovariance(r, r);
+      if (cov < 0.0)
+        cov = 0.0; // Protect against numerical errors
+      return std::sqrt(cov);
     }
 
     /// Returns the factorial moment ratio Fr / Fq
     double GetFactorialMomentRatio(int r, int q) {
-      return GetFactorialMoment(r) / GetFactorialMoment(q);
+      double denominator = GetFactorialMoment(q);
+      if (denominator == 0.0)
+        return std::numeric_limits<double>::quiet_NaN();
+      return GetFactorialMoment(r) / denominator;
     }
 
     /// Returns the error estimate for the factorial moment ratio Fr / Fq
@@ -468,10 +493,15 @@ namespace SampleMoments {
       (void)use_central_moments;
       double Cr = GetFactorialMoment(r);
       double Cq = GetFactorialMoment(q);
+      if (Cr == 0.0 || Cq == 0.0)
+        return std::numeric_limits<double>::quiet_NaN();
       double c1 = GetFactorialMomentsCovariance(r,r);
       double c2 = GetFactorialMomentsCovariance(q,q);
       double c1c2cov = GetFactorialMomentsCovariance(r,q);
-      return std::abs(Cr/Cq) * std::sqrt(c1/Cr/Cr + c2/Cq/Cq - 2. * c1c2cov/Cr/Cq);
+      double variance = c1/Cr/Cr + c2/Cq/Cq - 2. * c1c2cov/Cr/Cq;
+      if (variance < 0.0)
+        variance = 0.0; // Protect against numerical errors causing negative variance
+      return std::abs(Cr/Cq) * std::sqrt(variance);
     }
 
     /// Returns the sample mean
@@ -525,14 +555,15 @@ namespace SampleMoments {
       double c1c2cov = GetFactorialCumulantsCovariance(n,1, use_central_moments);
       double d1 = 1.0 / std::pow(fc1, n);
       double d2 = -1. * n * fcn / std::pow(fc1, n + 1);
-      return std::sqrt( d1 * d1 * c1 + d2 * d2 * c2 + 2. * d1 * d2 * c1c2cov );
+      double variance = d1 * d1 * c1 + d2 * d2 * c2 + 2. * d1 * d2 * c1c2cov;
+      if (variance < 0.0)
+        variance = 0.0; // Protect against numerical errors causing negative variance
+      return std::sqrt(variance);
     }
 
     /// Returns the reduced factorial moment f(n) = F(n) / [F(1)]^n
     double GetReducedFactorialMoment(int n) {
-      double fc1 = GetFactorialMomentsCovariance(1, 1); // Only need mean, which is same as factorial cumulant(1)
-      // Actually fc(1) = mean.
-      fc1 = GetMean();
+      double fc1 = GetMean();
       if (fc1 == 0.0)
         return std::numeric_limits<double>::quiet_NaN();
       return GetFactorialMoment(n) / std::pow(fc1, n);
@@ -549,7 +580,10 @@ namespace SampleMoments {
       double c1c2cov = GetFactorialMomentsCovariance(n,1);
       double d1 = 1.0 / std::pow(fc1, n);
       double d2 = -1. * n * fcn / std::pow(fc1, n + 1);
-      return std::sqrt( d1 * d1 * c1 + d2 * d2 * c2 + 2. * d1 * d2 * c1c2cov );
+      double variance = d1 * d1 * c1 + d2 * d2 * c2 + 2. * d1 * d2 * c1c2cov;
+      if (variance < 0.0)
+        variance = 0.0; // Protect against numerical errors causing negative variance
+      return std::sqrt(variance);
     }
 
     /// Set the shift of means to use when accumulating statistics

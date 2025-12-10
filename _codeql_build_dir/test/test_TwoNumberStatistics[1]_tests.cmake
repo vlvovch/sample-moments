@@ -1,0 +1,3 @@
+add_test([=[TwoNumberStatistics.JointMomentsAndCumulantsSmallSample]=]  /home/runner/work/sample-moments/sample-moments/_codeql_build_dir/test/test_TwoNumberStatistics [==[--gtest_filter=TwoNumberStatistics.JointMomentsAndCumulantsSmallSample]==] --gtest_also_run_disabled_tests)
+set_tests_properties([=[TwoNumberStatistics.JointMomentsAndCumulantsSmallSample]=]  PROPERTIES WORKING_DIRECTORY /home/runner/work/sample-moments/sample-moments/_codeql_build_dir/test SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
+set(  test_TwoNumberStatistics_TESTS TwoNumberStatistics.JointMomentsAndCumulantsSmallSample)

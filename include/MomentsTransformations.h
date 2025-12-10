@@ -19,23 +19,34 @@ namespace SampleMoments {
   typedef std::vector<int> Block;
   typedef std::vector<Block> Partition;
 
+  /// Accessor for precomputed partitions of a set (function-local static for thread-safe init)
+  static std::vector<std::vector<Partition>>& PartitionsOfSetPrecomputed() {
+    static std::vector<std::vector<Partition>> partitions;
+    return partitions;
+  }
+
   /// Returns all partitions of a set {1,2,...,n} via a recursive procedure
   /// Each element contains a vector of blocks, each block is a vector of indices
   /// See https://en.wikipedia.org/wiki/Partition_of_a_set
   /// \param n  The dimension of the set
   static std::vector<Partition> PartitionsOfSet(int n) {
+    // Use precomputed cache if available
+    if (n < static_cast<int>(PartitionsOfSetPrecomputed().size()))
+      return PartitionsOfSetPrecomputed()[n];
+
     if (n == 1)
       return {{{0}}};
 
     auto subpartitions = PartitionsOfSet(n - 1);
     auto ret = std::vector<Partition>();
+    ret.reserve(subpartitions.size() * n); // Reserve approximate space
 
     for (auto &el : subpartitions) {
       auto temp_element = el;
       temp_element.push_back({n - 1});
       ret.push_back(temp_element);
       temp_element = el;
-      for (int i = 0; i < el.size(); ++i) {
+      for (size_t i = 0; i < el.size(); ++i) {
         temp_element[i].push_back(n - 1);
         ret.push_back(temp_element);
         temp_element[i] = el[i];
@@ -173,7 +184,7 @@ namespace SampleMoments {
   /// \param n  The dimension of the set
   /// \param m  The number of block colors
   std::vector<ColoredPartition> ColoredPartitionsOfSet(int n, int m) {
-    if (m == 2 && n < PartitionsOfSet2DPrecomputed().size())
+    if (m == 2 && n < static_cast<int>(PartitionsOfSet2DPrecomputed().size()))
       return PartitionsOfSet2DPrecomputed()[n];
 
     if (n == 0)
@@ -182,14 +193,15 @@ namespace SampleMoments {
     // single blocks of m types, each contains the single element
     if (n == 1) {
       auto ret = std::vector<ColoredPartition>();
+      ret.reserve(m);
       for (int j = 0; j < m; ++j)
-        //ret.push_back({{j,{0}}});
         ret.push_back({ ColoredBlock ({j,{0}}) });
       return ret;
     }
 
     auto subpartitions = ColoredPartitionsOfSet(n - 1, m);
     auto ret = std::vector<ColoredPartition>();
+    ret.reserve(subpartitions.size() * (m + n - 1)); // Reserve approximate space
 
     for (auto& el : subpartitions) {
       for (int j = 0; j < m; ++j) {
@@ -199,7 +211,7 @@ namespace SampleMoments {
         ret.push_back(temp_element);
       }
       auto temp_element = el;
-      for (int i = 0; i < el.size(); ++i) {
+      for (size_t i = 0; i < el.size(); ++i) {
         temp_element[i].second.push_back(n - 1);
         ret.push_back(temp_element);
         sort(temp_element.begin(), temp_element.end());
