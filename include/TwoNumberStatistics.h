@@ -190,7 +190,10 @@ namespace SampleMoments {
 
     /// Returns the error estimate for the joint moment <N1^i N2^j>
     double GetJointMomentError(int i, int j) {
-      return std::sqrt(GetJointMomentsSampleCovariance(i, j, i, j));
+      double cov = GetJointMomentsSampleCovariance(i, j, i, j);
+      if (cov < 0.0)
+        cov = 0.0; // Protect against numerical errors
+      return std::sqrt(cov);
     }
 
     double GetJointMomentError(const std::pair<int,int> &index) { return GetJointMomentError(index.first, index.second); }
@@ -213,11 +216,16 @@ namespace SampleMoments {
 
       double c1 = GetJointMoment(i1, j1);
       double c2 = GetJointMoment(i2, j2);
+      if (c1 == 0.0 || c2 == 0.0)
+        return std::numeric_limits<double>::quiet_NaN();
       double c1Dev = GetJointMomentsSampleCovariance(i1, j1, i1, j1);
       double c2Dev = GetJointMomentsSampleCovariance(i2, j2, i2, j2);
       double c1c2cov = GetJointMomentsSampleCovariance(i1, j1, i2, j2);
 
-      return std::abs(c1 / c2) * std::sqrt(c1Dev / c1 / c1 + c2Dev / c2 / c2 - 2. * c1c2cov / c1 / c2);
+      double variance = c1Dev / c1 / c1 + c2Dev / c2 / c2 - 2. * c1c2cov / c1 / c2;
+      if (variance < 0.0)
+        variance = 0.0; // Protect against numerical errors causing negative variance
+      return std::abs(c1 / c2) * std::sqrt(variance);
     }
 
     double GetJointMomentRatioError(const std::pair<int,int> &index1, const std::pair<int,int> &index2)
@@ -275,7 +283,10 @@ namespace SampleMoments {
 
     /// Returns the error estimate for the r-th central moment \mu_i,j =  <(N1-<N1>)^i (N2-<N2>)^j>
     double GetJointCentralMomentError(int i, int j) {
-      return std::sqrt(GetJointCentralMomentsSampleCovariance(i, j, i, j));
+      double cov = GetJointCentralMomentsSampleCovariance(i, j, i, j);
+      if (cov < 0.0)
+        cov = 0.0; // Protect against numerical errors
+      return std::sqrt(cov);
     }
 
     double GetJointCentralMomentError(const std::pair<int,int> &index) { return GetJointCentralMomentError(index.first, index.second); }
@@ -295,11 +306,16 @@ namespace SampleMoments {
     double GetJointCentralMomentRatioError(int i1, int j1, int i2, int j2) {
       double c1 = GetJointCentralMoment(i1, j1);
       double c2 = GetJointCentralMoment(i2, j2);
+      if (c1 == 0.0 || c2 == 0.0)
+        return std::numeric_limits<double>::quiet_NaN();
       double c1Dev = GetJointCentralMomentsSampleCovariance(i1, j1, i1, j1);
       double c2Dev = GetJointCentralMomentsSampleCovariance(i2, j2, i2, j2);
       double c1c2cov = GetJointCentralMomentsSampleCovariance(i1, j1, i2, j2);
 
-      return std::abs(c1 / c2) * std::sqrt(c1Dev / c1 / c1 + c2Dev / c2 / c2 - 2. * c1c2cov / c1 / c2);
+      double variance = c1Dev / c1 / c1 + c2Dev / c2 / c2 - 2. * c1c2cov / c1 / c2;
+      if (variance < 0.0)
+        variance = 0.0; // Protect against numerical errors causing negative variance
+      return std::abs(c1 / c2) * std::sqrt(variance);
     }
 
     double GetJointCentralMomentRatioError(const std::pair<int,int> &index1, const std::pair<int,int> &index2)
@@ -318,7 +334,10 @@ namespace SampleMoments {
 
     /// Returns the error estimate for the joint cumulant \kappa_i,j
     double GetJointCumulantError(int i, int j, bool use_central_moments = true) {
-      return std::sqrt(GetJointCumulantsCovariance(i, j, i, j, use_central_moments));
+      double cov = GetJointCumulantsCovariance(i, j, i, j, use_central_moments);
+      if (cov < 0.0)
+        cov = 0.0; // Protect against numerical errors
+      return std::sqrt(cov);
     }
 
     double GetJointCumulantError(const std::pair<int,int> &index, bool use_central_moments = true) {
@@ -348,7 +367,10 @@ namespace SampleMoments {
       double c1 = GetJointCumulantsCovariance(i1, j1, i1, j1, use_central_moments);
       double c2 = GetJointCumulantsCovariance(i2, j2, i2, j2, use_central_moments);
       double c1c2cov = GetJointCumulantsCovariance(i1, j1, i2, j2, use_central_moments);
-      return std::abs(kappar/kappaq) * std::sqrt(c1/kappar/kappar + c2/kappaq/kappaq - 2. * c1c2cov/kappar/kappaq);
+      double variance = c1/kappar/kappar + c2/kappaq/kappaq - 2. * c1c2cov/kappar/kappaq;
+      if (variance < 0.0)
+        variance = 0.0; // Protect against numerical errors causing negative variance
+      return std::abs(kappar/kappaq) * std::sqrt(variance);
     }
 
     double GetJointCumulantRatioError(const std::pair<int,int> &index1, const std::pair<int,int> &index2, bool use_central_moments = true)
@@ -377,7 +399,10 @@ namespace SampleMoments {
 
     /// Calculates the joint factorial cumulant
     double GetJointFactorialCumulantError(int i, int j, bool use_central_moments = true) {
-      return std::sqrt(GetJointFactorialCumulantsCovariance(i, j, i, j, use_central_moments));
+      double cov = GetJointFactorialCumulantsCovariance(i, j, i, j, use_central_moments);
+      if (cov < 0.0)
+        cov = 0.0; // Protect against numerical errors
+      return std::sqrt(cov);
     }
 
     /// Calculates the joint factorial cumulant ratio
@@ -397,7 +422,10 @@ namespace SampleMoments {
       double c1 = GetJointFactorialCumulantsCovariance(i1,j1, i1, j1, use_central_moments);
       double c2 = GetJointFactorialCumulantsCovariance(i2,j2, i2, j2, use_central_moments);
       double c1c2cov = GetJointFactorialCumulantsCovariance(i1,j1, i2, j2, use_central_moments);
-      return std::abs(Cr/Cq) * std::sqrt(c1/Cr/Cr + c2/Cq/Cq - 2. * c1c2cov/Cr/Cq);
+      double variance = c1/Cr/Cr + c2/Cq/Cq - 2. * c1c2cov/Cr/Cq;
+      if (variance < 0.0)
+        variance = 0.0; // Protect against numerical errors causing negative variance
+      return std::abs(Cr/Cq) * std::sqrt(variance);
     }
 
     /// Calculates the joint reduced factorial cumulant ratio C~i,j/[C~1,0]^i[C~0,1]^j
@@ -462,22 +490,33 @@ namespace SampleMoments {
 
     /// Calculates the joint factorial moment
     double GetJointFactorialMomentError(int i, int j) {
-      return std::sqrt(GetJointFactorialMomentsCovariance(i, j, i, j));
+      double cov = GetJointFactorialMomentsCovariance(i, j, i, j);
+      if (cov < 0.0)
+        cov = 0.0; // Protect against numerical errors
+      return std::sqrt(cov);
     }
 
     /// Calculates the joint factorial moment ratio
     double GetJointFactorialMomentRatio(int i1, int j1, int i2, int j2) {
-      return GetJointFactorialMoment(i1, j1) / GetJointFactorialMoment(i2, j2);
+      double denominator = GetJointFactorialMoment(i2, j2);
+      if (denominator == 0.0)
+        return std::numeric_limits<double>::quiet_NaN();
+      return GetJointFactorialMoment(i1, j1) / denominator;
     }
 
     /// Calculates the joint factorial moment ratio error
     double GetJointFactorialMomentRatioError(int i1, int j1, int i2, int j2) {
       double Cr = GetJointFactorialMoment(i1, j1);
       double Cq = GetJointFactorialMoment(i2,j2);
+      if (Cr == 0.0 || Cq == 0.0)
+        return std::numeric_limits<double>::quiet_NaN();
       double c1 = GetJointFactorialMomentsCovariance(i1,j1, i1, j1);
       double c2 = GetJointFactorialMomentsCovariance(i2,j2, i2, j2);
       double c1c2cov = GetJointFactorialMomentsCovariance(i1,j1, i2, j2);
-      return std::abs(Cr/Cq) * std::sqrt(c1/Cr/Cr + c2/Cq/Cq - 2. * c1c2cov/Cr/Cq);
+      double variance = c1/Cr/Cr + c2/Cq/Cq - 2. * c1c2cov/Cr/Cq;
+      if (variance < 0.0)
+        variance = 0.0; // Protect against numerical errors causing negative variance
+      return std::abs(Cr/Cq) * std::sqrt(variance);
     }
 
     /// Calculates the joint reduced factorial moment ratio Fi,j/[F1,0]^i[F0,1]^j
