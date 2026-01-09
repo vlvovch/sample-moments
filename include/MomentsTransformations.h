@@ -39,7 +39,7 @@ namespace SampleMoments {
 
     auto subpartitions = PartitionsOfSet(n - 1);
     auto ret = std::vector<Partition>();
-    ret.reserve(subpartitions.size() * (n + 1)); // Reserve approximate space
+    ret.reserve(subpartitions.size() * n); // Reserve approximate space
 
     for (auto &el : subpartitions) {
       auto temp_element = el;
