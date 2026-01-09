@@ -85,6 +85,7 @@ build*/*
 Debug*/*
 Release*/*
 local*/*
+_codeql*/
 
 # CLion
 .idea
